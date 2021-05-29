@@ -1,0 +1,78 @@
+body {
+	margin: 0;
+	color: black;
+	background-color: white;
+}
+
+html {
+	font-family: Sans-Serif;
+}
+
+.container {
+	max-width: 60em;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+ul.departures {
+	position:relative;
+	width:100%;
+
+	border-width:1px 2px;
+	margin-bottom: 5em;
+
+	list-style-type:none;
+	margin:0;
+	padding:0;
+}
+
+ul.departures > li {
+	display: block;
+	height: 3em;
+	width: 100%;
+	position: relative;
+	cursor: pointer;
+	border-bottom: 1px solid grey;
+	background-color: white;
+}
+
+ul.departures li .line {
+	position: absolute;
+	bottom: 5px;
+	left: 2px;
+	max-width: 6em;
+	max-height: 3ex;
+	overflow: hidden;
+	font-size: 150%;
+}
+
+ul.departures li .dest {
+	position: absolute;
+	top: 0.5ex;
+	left: 4em;
+	bottom: 0px;
+	width: 70%;
+	overflow: hidden;
+	background-color: transparent;
+	font-size: 200%;
+	color: black;
+}
+
+ul.departures li .time {
+	position: absolute;
+	right: 5px;
+	top: 4px;
+	background-color: transparent;
+	font-size: 100%;
+	padding-left: 0.2em;
+	color: black;
+}
+
+@media only screen and (max-width: 600px) {
+	ul.departures > li {
+		font-size: 85%;
+	}
+}
+
+@media only screen and (min-width: 600px) {
+}
