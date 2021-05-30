@@ -21,10 +21,21 @@
 	<div class="content">
 		<ul class="departures">
 			{% for departure in departures %}
-				<li onclick="location.href='https://dbf.finalrewind.org/map/{{ departure.tripId }}/0';">
-					<span class="line {{ departure.line.mode }}">{{ departure.line.name }}</span>
-					<span class="dest" aria-label="nach {{ departure.direction }}">{{ departure.direction }}</span>
-					<span class="time" aria-label="um {{ departure.when.strftime('%H:%M') }}">{{ departure.when.strftime('%H:%M') }}</span>
+				<li class="{{ departure.classes }}" onclick="location.href='https://dbf.finalrewind.org/map/{{ departure.tripId }}/0';">
+					<span class="line {{ departure.line.css_class }}">{{ departure.line.name }}</span>
+					{% if departure.suffix %}
+						<span class="destsuffix">{{ departure.suffix }}</span>
+					{% endif %}
+					<span class="dest" aria-label="nach {{ departure.direction }}">{{ departure.direction }}
+					</span>
+					{% if departure.cancelled and departure.plannedWhen %}
+						<span class="time" aria-label="um {{ departure.plannedWhen }}">{{ departure.plannedWhen.strftime("%H:%M") }}</span>
+					{% else %}
+						<span class="time" aria-label="in {{ departure.relativeWhen }}">{{ departure.relativeWhen }}</span>
+					{% endif %}
+					{% if departure.platform %}
+						<span class="platform" aria-label="Gleis/Bussteig {{ departure.platform }}">{{ departure.platform }}</span>
+					{% endif %}
 				</li>
 			{% endfor %}
 		</ul>

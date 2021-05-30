@@ -36,26 +36,61 @@ ul.departures > li {
 	background-color: white;
 }
 
+ul.departures > li.cancelled {
+	background-color: #ffe7d0;
+}
+
 ul.departures li .line {
 	position: absolute;
-	bottom: 5px;
+	bottom: 0;
 	left: 2px;
 	max-width: 6em;
 	max-height: 3ex;
+	max-width: 4em;
 	overflow: hidden;
 	font-size: 150%;
+	background-color: #eeeeee;
+	font-weight: bold;
+	padding-left: 0.1em;
+	padding-right: 0.1em;
+}
+
+ul.departures li .tram {
+	background-color:#ffcccc;
+}
+
+ul.departures li .suburban {
+	background-color:#aaffba;
+	border-radius: 30px;
+}
+
+ul.departures li .subway {
+	background-color:#aac0ff;
+}
+
+ul.departures li .bus {
+	background-color:#eeaaee;
+	border-radius: 10px;
 }
 
 ul.departures li .dest {
 	position: absolute;
-	top: 0.5ex;
+	bottom: 0;
 	left: 4em;
-	bottom: 0px;
 	width: 70%;
 	overflow: hidden;
 	background-color: transparent;
-	font-size: 200%;
+	font-size: 160%;
 	color: black;
+}
+
+ul.departures li .destsuffix {
+	position: absolute;
+	top: 1px;
+	left: 6.5em;
+	width: 70%;
+	height: 1.2em;
+	overflow: hidden;
 }
 
 ul.departures li .time {
@@ -65,6 +100,16 @@ ul.departures li .time {
 	background-color: transparent;
 	font-size: 100%;
 	padding-left: 0.2em;
+	color: black;
+}
+
+ul.departures li .platform {
+	position: absolute;
+	bottom: 0;
+	right: 5px;
+	overflow: hidden;
+	background-color: transparent;
+	font-size: 150%;
 	color: black;
 }
 

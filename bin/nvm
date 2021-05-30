@@ -26,17 +26,68 @@ db_rest_api = os.getenv("NVM_DB_REST_API", "https://v5.db.transport.rest")
 
 env = Environment(loader=FileSystemLoader("templates"), autoescape=select_autoescape())
 
+
 class Departure:
     def __init__(self, obj):
         self.__dict__.update(obj)
+
+        if not "cancelled" in obj:
+            self.cancelled = False
+
+        self.classes = str()
+
+        if "," in self.direction:
+            self.direction, self.suffix = self.direction.split(",", maxsplit=1)
+        else:
+            self.suffix = None
+
         if "line" in obj:
             self.line = Line(self.line)
-        self.when = dateutil.parser.parse(self.when)
-        self.plannedWhen = dateutil.parser.parse(self.plannedWhen)
+        try:
+            self.when = dateutil.parser.parse(self.when)
+        except TypeError:
+            self.when = None
+        try:
+            self.plannedWhen = dateutil.parser.parse(self.plannedWhen)
+        except TypeError:
+            self.plannedWhen = None
+
+        if self.cancelled:
+            self.classes += " cancelled"
+
+        if self.when:
+            self.sort_by = self.when.timestamp()
+        elif self.plannedWhen:
+            self.sort_by = self.plannedWhen.timestamp()
+        else:
+            self.sort_by = 0
+
+    def set_relative(self, now):
+        minutes = (self.sort_by - now) // 60
+        if minutes < 1:
+            self.relativeWhen = "sofort"
+        elif minutes < 60:
+            self.relativeWhen = f"{minutes:.0f} min"
+        else:
+            self.relativeWhen = f"{minutes//60:.0f}h {minutes%60:.0f}min"
+
 
 class Line:
     def __init__(self, obj):
         self.__dict__.update(obj)
+        self.css_class = str()
+
+        if self.product == "tram":
+            self.name = self.name.removeprefix("STR ")
+            self.css_class = "tram"
+        elif self.product == "suburban":
+            self.css_class = "suburban"
+        elif self.product == "subway":
+            self.css_class = "subway"
+        elif self.product == "bus":
+            self.name = self.name.removeprefix("Bus ")
+            self.css_class = "bus"
+
 
 async def show_departure_board(request):
     try:
@@ -55,8 +106,17 @@ async def show_departure_board(request):
         return web.HTTPNotFound(body=json.dumps(departures), headers=headers)
 
     departures = list(map(Departure, departures))
+
+    now = datetime.now().timestamp()
+    for departure in departures:
+        departure.set_relative(now)
+
     departure_board = env.get_template("departure_list.html")
-    return web.Response(body=departure_board.render(title="Noot", departures=departures), headers=headers)
+    return web.Response(
+        body=departure_board.render(title="Noot", departures=departures),
+        headers=headers,
+    )
+
 
 if __name__ == "__main__":
 
