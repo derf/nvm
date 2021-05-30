@@ -31,7 +31,12 @@
 					{% if departure.cancelled and departure.plannedWhen %}
 						<span class="time" aria-label="um {{ departure.plannedWhen }}">{{ departure.plannedWhen.strftime("%H:%M") }}</span>
 					{% else %}
-						<span class="time" aria-label="in {{ departure.relativeWhen }}">{{ departure.relativeWhen }}</span>
+						<span class="time" aria-label="Abfahrtszeit: {{ departure.relativeWhen }}">
+							{% if departure.delay %}
+								<span class="delay" aria-label="{{ departure.delay }} Minuten Verspätung">({{ departure.delay }})</span>
+							{% endif %}
+							{{ departure.relativeWhen }}
+						</span>
 					{% endif %}
 					{% if departure.platform %}
 						<span class="platform" aria-label="Gleis/Bussteig {{ departure.platform }}">{{ departure.platform }}</span>

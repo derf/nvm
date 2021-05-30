@@ -62,6 +62,10 @@ class Departure:
         else:
             self.sort_by = 0
 
+        if self.delay:
+            self.delay = self.delay // 60
+            self.delay = f"{self.delay:+.0f}"
+
     def set_relative(self, now):
         minutes = (self.sort_by - now) // 60
         if minutes < 1:
