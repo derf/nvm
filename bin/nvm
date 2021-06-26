@@ -108,8 +108,7 @@ async def show_departure_board(request):
         async with session.get(
             f"{db_rest_api}/stops/{eva}/departures?results=60&duration=120&stopovers=true"
         ) as response:
-            departures = await response.text()
-            departures = json.loads(departures)
+            departures = await response.json()
 
     if type(departures) is dict and departures.get("error", False):
         return web.HTTPNotFound(body=json.dumps(departures), headers=headers)
@@ -123,6 +122,20 @@ async def show_departure_board(request):
     departure_board = env.get_template("departure_list.html")
     return web.Response(
         body=departure_board.render(title="Noot", departures=departures),
+        headers=headers,
+    )
+
+
+async def redirect_to_departure_board(request):
+    stop_name = request.query["name"]
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"{db_rest_api}/locations?query={stop_name}&poi=false&addresses=false"
+        ) as response:
+            stops = await response.json()
+    stops_page = env.get_template("stops.html")
+    return web.Response(
+        body=stops_page.render(title="Noot", stops=stops),
         headers=headers,
     )
 
@@ -161,5 +174,6 @@ if __name__ == "__main__":
     app.router.add_get(args.prefix, show_landing_page)
     app.router.add_get(f"{args.prefix}board/{{eva}}", show_departure_board)
     app.router.add_post(f"{args.prefix}geolocation", ajax_geolocation)
+    app.router.add_get(f"{args.prefix}find/stop", redirect_to_departure_board)
     app.router.add_static(f"{args.prefix}static", "static")
     web.run_app(app, host="localhost", port=args.port)

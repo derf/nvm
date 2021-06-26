@@ -15,21 +15,15 @@
 	<link rel="apple-touch-icon" sizes="152x152" href="/static/icons/icon-152x152.png">
 	<link rel="apple-touch-icon" sizes="167x167" href="/static/icons/icon-167x167.png">
 	<link href="/static/v0/css/wip.css" id="theme" rel="stylesheet">
-	<script src="/static/v0/js/geolocation.js"></script>
 </head>
 <body>
 <div class="container">
 	<div class="content">
-		<div class="geolocation">
-			<button id="geolocationsearch">Haltestellen in der Umgebung suchen</button>
-		</div>
-		<form action="/find/stop">
-			<input id="name" name="name" required type="text">
-			<label for="name">Manuelle Eingabe</label>
-			<button class="btn waves-effect waves-light btn-flat" type="submit" name="action" value="departures">
-				Suchen
-			</button>
-		</form>
+		<ul>
+			{% for stop in stops %}
+				<li><a href="/board/{{ stop['id'] }}">{{ stop['name'] }}</a></li>
+			{% endfor %}
+		</ul>
 	</div>
 </div>
 </body>
