@@ -22,6 +22,11 @@ headers = {
     "Content-Type": "text/html; charset=utf-8",
 }
 
+ajax_headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Content-Type": "application/json; charset=utf-8",
+}
+
 db_rest_api = os.getenv("NVM_DB_REST_API", "https://v5.db.transport.rest")
 
 env = Environment(loader=FileSystemLoader("templates"), autoescape=select_autoescape())
@@ -122,6 +127,29 @@ async def show_departure_board(request):
     )
 
 
+async def show_landing_page(request):
+    landing_page = env.get_template("landing_page.html")
+    return web.Response(
+        body=landing_page.render(title="Noot"),
+        headers=headers,
+    )
+
+
+async def ajax_geolocation(request):
+    request_data = await request.json()
+    lat = request_data["lat"]
+    lon = request_data["lon"]
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"{db_rest_api}/stops/nearby?latitude={lat}&longitude={lon}&linesOfStops=true"
+        ) as response:
+            departures = await response.json()
+    return web.Response(
+        body=json.dumps(departures),
+        headers=ajax_headers,
+    )
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="eva to efa gateway")
@@ -130,6 +158,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     app = web.Application()
+    app.router.add_get(args.prefix, show_landing_page)
     app.router.add_get(f"{args.prefix}board/{{eva}}", show_departure_board)
+    app.router.add_post(f"{args.prefix}geolocation", ajax_geolocation)
     app.router.add_static(f"{args.prefix}static", "static")
     web.run_app(app, host="localhost", port=args.port)
