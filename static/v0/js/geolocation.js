@@ -1,6 +1,13 @@
 document.addEventListener("DOMContentLoaded", function() {
 	const geoLocationButton = document.getElementById('geolocationsearch');
 
+	const mkTextNode = function(className, textContent) {
+		const node = document.createElement("span");
+		node.className = className;
+		node.textContent = textContent;
+		return node
+	}
+
 	const processResult = function(results) {
 		const list = document.createElement("ul");
 		list.className = "stops";
@@ -9,6 +16,7 @@ document.addEventListener("DOMContentLoaded", function() {
 			const listentry = document.createElement("li");
 			const link = document.createElement("a");
 			const note = document.createElement("span");
+			const lines = document.createElement("span");
 
 			link.className = "name";
 			link.textContent = result.name;
@@ -21,8 +29,39 @@ document.addEventListener("DOMContentLoaded", function() {
 				note.textContent = result.distance + " m"
 			}
 
+			lines.className = "lines";
+
+			if (result.products.nationalExpress) {
+				lines.appendChild(mkTextNode("longdistance", "ICE"));
+			}
+			if (result.products.national) {
+				lines.appendChild(mkTextNode("longdistance", "IC"));
+			}
+			if (result.products.regionalExp) {
+				lines.appendChild(mkTextNode("longdistance", "RE"));
+			}
+			if (result.products.regional) {
+				lines.appendChild(mkTextNode("longdistance", "R"));
+			}
+			if (result.products.suburban) {
+				lines.appendChild(mkTextNode("suburban", "S"));
+			}
+			if (result.products.tram) {
+				lines.appendChild(mkTextNode("tram", "T"));
+			}
+			if (result.products.bus) {
+				lines.appendChild(mkTextNode("bus", "Bus"));
+			}
+			if (result.products.ferry) {
+				lines.appendChild(mkTextNode("bus", "Fähre"));
+			}
+			if (result.products.taxi) {
+				lines.appendChild(mkTextNode("taxi", "AST"));
+			}
+
 			listentry.appendChild(link);
 			listentry.appendChild(note);
+			listentry.appendChild(lines);
 			list.appendChild(listentry);
 		}
 		geoLocationButton.replaceWith(list);

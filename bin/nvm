@@ -86,7 +86,9 @@ class Line:
         self.__dict__.update(obj)
         self.css_class = str()
 
-        if self.product == "tram":
+        if self.product.startswith("national"):
+            self.css_class = "longdistance"
+        elif self.product == "tram":
             self.name = self.name.removeprefix("STR ")
             self.css_class = "tram"
         elif self.product == "suburban":

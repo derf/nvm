@@ -9,8 +9,40 @@
 	<div class="content">
 		<ul class="stops">
 			{% for stop in stops %}
-				<li>
+				<li onclick="location.href='/board/{{ stop['id'] }} ';">
 					<a class="name" href="/board/{{ stop['id'] }}">{{ stop['name'] }}</a>
+					<span class="lines">
+						{% if stop["products"]["nationalExpress"] %}
+							<span class="longdistance">ICE</span>
+						{% endif %}
+						{% if stop["products"]["national"] %}
+							<span class="longdistance">IC</span>
+						{% endif %}
+						{% if stop["products"]["regionalExp"] %}
+							<span class="regional">RE</span>
+						{% endif %}
+						{% if stop["products"]["regional"] %}
+							<span class="regional">R</span>
+						{% endif %}
+						{% if stop["products"]["suburban"] %}
+							<span class="suburban">S</span>
+						{% endif %}
+						{% if stop["products"]["subway"] %}
+							<span class="subway">U</span>
+						{% endif %}
+						{% if stop["products"]["tram"] %}
+							<span class="tram">T</span>
+						{% endif %}
+						{% if stop["products"]["bus"] %}
+							<span class="bus">Bus</span>
+						{% endif %}
+						{% if stop["products"]["ferry"] %}
+							<span class="bus">Fähre</span>
+						{% endif %}
+						{% if stop["products"]["taxi"] %}
+							<span class="taxi">AST</span>
+						{% endif %}
+					</span>
 				</li>
 			{% endfor %}
 		</ul>
