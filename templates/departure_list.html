@@ -5,8 +5,14 @@
 	{% include 'header.html' %}
 </head>
 <body>
+
+{% include 'navbar.html' %}
+
 <div class="container">
 	<div class="content">
+		{% if not departures %}
+			<div class="globalnote">Keine Abfahrten innerhalb der nächsten zwei Stunden</div>
+		{% endif %}
 		<ul class="departures">
 			{% for departure in departures %}
 				<li class="{{ departure.classes }}" onclick="location.href='https://dbf.finalrewind.org/map/{{ departure.tripId }}/0';">

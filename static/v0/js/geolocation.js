@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function() {
 			link.textContent = result.name;
 			link.href = "/board/" + result.id;
 
-			note.className = "note";
+			note.className = "distance";
 			if (result.distance >= 1000) {
 				note.textContent = result.distance.toFixed(1) + " km"
 			} else {

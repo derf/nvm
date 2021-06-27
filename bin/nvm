@@ -41,6 +41,12 @@ class Departure:
 
         self.classes = str()
 
+        self.station_name = None
+        self.stop_name = None
+
+        self.stop_name = obj.get("stop", dict()).get("name", None)
+        self.station_name = obj.get("station", dict()).get("name", self.stop_name)
+
         if "," in self.direction:
             self.direction, self.suffix = self.direction.split(",", maxsplit=1)
         else:
@@ -117,13 +123,22 @@ async def show_departure_board(request):
 
     departures = list(map(Departure, departures))
 
+    station_name_freq = dict()
     now = datetime.now().timestamp()
     for departure in departures:
         departure.set_relative(now)
+        station_name_freq[departure.station_name] = (
+            station_name_freq.get(departure.station_name, 0) + 1
+        )
+
+    if station_name_freq:
+        station_name = max(station_name_freq.keys(), key=lambda k: station_name_freq[k])
+    else:
+        station_name = "NVM"
 
     departure_board = env.get_template("departure_list.html")
     return web.Response(
-        body=departure_board.render(title="Noot", departures=departures),
+        body=departure_board.render(title=station_name, departures=departures),
         headers=headers,
     )
 
@@ -137,7 +152,7 @@ async def redirect_to_departure_board(request):
             stops = await response.json()
     stops_page = env.get_template("stops.html")
     return web.Response(
-        body=stops_page.render(title="Noot", stops=stops),
+        body=stops_page.render(title=f"Suche nach „{stop_name}“", stops=stops),
         headers=headers,
     )
 
@@ -145,7 +160,7 @@ async def redirect_to_departure_board(request):
 async def show_landing_page(request):
     landing_page = env.get_template("landing_page.html")
     return web.Response(
-        body=landing_page.render(title="Noot"),
+        body=landing_page.render(title="NVM"),
         headers=headers,
     )
 
@@ -156,7 +171,7 @@ async def ajax_geolocation(request):
     lon = request_data["lon"]
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            f"{db_rest_api}/stops/nearby?latitude={lat}&longitude={lon}&linesOfStops=true"
+            f"{db_rest_api}/stops/nearby?latitude={lat}&longitude={lon}"
         ) as response:
             departures = await response.json()
     return web.Response(

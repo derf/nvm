@@ -6,14 +6,15 @@
 	<script src="/static/v0/js/geolocation.js"></script>
 </head>
 <body>
+{% include 'navbar.html' %}
 <div class="container">
 	<div class="content">
 		<div class="geolocation">
 			<button id="geolocationsearch">Haltestellen in der Umgebung suchen</button>
 		</div>
 		<form action="/find/stop">
+			<label for="name">Haltestelle:</label>
 			<input id="name" name="name" required type="text">
-			<label for="name">Manuelle Eingabe</label>
 			<button class="btn waves-effect waves-light btn-flat" type="submit" name="action" value="departures">
 				Suchen
 			</button>
