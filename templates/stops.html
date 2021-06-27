@@ -7,7 +7,7 @@
 <body>
 <div class="container">
 	<div class="content">
-		<ul>
+		<ul class="stops">
 			{% for stop in stops %}
 				<li><a href="/board/{{ stop['id'] }}">{{ stop['name'] }}</a></li>
 			{% endfor %}

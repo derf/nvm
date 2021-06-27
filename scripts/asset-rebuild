@@ -1,0 +1,9 @@
+#!/bin/sh
+# Copyright (C) 2021 Daniel Friesel
+#
+# SPDX-License-Identifier: CC0-1.0
+
+set -ex
+
+sassc -t compressed sass/dark.scss static/v0/css/dark.min.css
+sassc -t compressed sass/light.scss static/v0/css/light.min.css

@@ -2,8 +2,8 @@ document.addEventListener("DOMContentLoaded", function() {
 	const geoLocationButton = document.getElementById('geolocationsearch');
 
 	const processResult = function(results) {
-		console.log(results);
 		const list = document.createElement("ul");
+		list.class = "stops";
 		for (var result in results) {
 			result = results[result];
 			var listentry = document.createElement("li");
