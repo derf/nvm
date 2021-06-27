@@ -3,15 +3,27 @@ document.addEventListener("DOMContentLoaded", function() {
 
 	const processResult = function(results) {
 		const list = document.createElement("ul");
-		list.class = "stops";
+		list.className = "stops";
 		for (var result in results) {
 			result = results[result];
-			var listentry = document.createElement("li");
-			var link = document.createElement("a");
-			link.text = result.name
+			const listentry = document.createElement("li");
+			const link = document.createElement("a");
+			const note = document.createElement("span");
+
+			link.className = "name";
+			link.textContent = result.name;
 			link.href = "/board/" + result.id;
-			listentry.appendChild(link)
-			list.appendChild(listentry)
+
+			note.className = "note";
+			if (result.distance >= 1000) {
+				note.textContent = result.distance.toFixed(1) + " km"
+			} else {
+				note.textContent = result.distance + " m"
+			}
+
+			listentry.appendChild(link);
+			listentry.appendChild(note);
+			list.appendChild(listentry);
 		}
 		geoLocationButton.replaceWith(list);
 	};

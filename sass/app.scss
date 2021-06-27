@@ -14,6 +14,53 @@ html {
 	margin-right: auto;
 }
 
+ul.stops {
+	position:relative;
+	width:100%;
+
+	border-width:1px 2px;
+	margin-bottom: 5em;
+
+	list-style-type:none;
+	margin:0;
+	padding:0;
+
+	a {
+		text-decoration: none;
+	}
+
+	> li {
+		display: block;
+		height: 3em;
+		width: 100%;
+		position: relative;
+		border-bottom: 1px solid grey;
+		background-color: white;
+
+		.name {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			width: 70%;
+			overflow: hidden;
+			background-color: transparent;
+			font-size: 150%;
+			color: black;
+		}
+
+		.note {
+			position: absolute;
+			top: 1px;
+			left: 0;
+			width: 70%;
+			height: 1.2em;
+			overflow: hidden;
+			opacity: 50%;
+		}
+
+	}
+}
+
 ul.departures {
 	position:relative;
 	width:100%;
@@ -119,7 +166,8 @@ ul.departures {
 }
 
 @media only screen and (max-width: 600px) {
-	ul.departures > li {
+	ul.departures > li,
+	ul.stops > li {
 		font-size: 85%;
 	}
 }
