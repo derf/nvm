@@ -95,14 +95,17 @@ class Line:
         if self.product.startswith("national"):
             self.css_class = "longdistance"
         elif self.product == "tram":
-            self.name = self.name.removeprefix("STR ")
+            # str.removeprefix requires Python ≥ 3.9
+            if self.name.startswith("STR "):
+                self.name = self.name[4:]
             self.css_class = "tram"
         elif self.product == "suburban":
             self.css_class = "suburban"
         elif self.product == "subway":
             self.css_class = "subway"
         elif self.product == "bus":
-            self.name = self.name.removeprefix("Bus ")
+            if self.name.startswith("Bus "):
+                self.name = self.name[4:]
             self.css_class = "bus"
 
 
