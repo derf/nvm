@@ -35,6 +35,87 @@ env = Environment(loader=FileSystemLoader("templates"), autoescape=select_autoes
 apis = None
 
 
+class EFA:
+    def __init__(self, url):
+        self.url = url + "/XML_DM_REQUEST"
+        self.post_data = {
+            "command": "",
+            "deleteAssignedStops_dm": "1",
+            "help": "Hilfe",
+            "itdLPxx_id_dm": ":dm",
+            "itdLPxx_mapState_dm": "",
+            "itdLPxx_mdvMap2_dm": "",
+            "itdLPxx_mdvMap_dm": "3406199:401077:NAV3",
+            "itdLPxx_transpCompany": "vrr",
+            "itdLPxx_view": "",
+            "language": "de",
+            "mode": "direct",
+            "nameInfo_dm": "invalid",
+            "nameState_dm": "empty",
+            "outputFormat": "JSON",
+            "ptOptionsActive": "1",
+            "requestID": "0",
+            "reset": "neue Anfrage",
+            "sessionID": "0",
+            "submitButton": "anfordern",
+            "typeInfo_dm": "invalid",
+            "type_dm": "stop",
+            "useProxFootSearch": "0",
+            "useRealtime": "1",
+        }
+
+    async def get_departures(self, place, name, ts):
+        self.post_data.update(
+            {
+                "itdDateDay": ts.day,
+                "itdDateMonth": ts.month,
+                "itdDateYear": ts.year,
+                "itdTimeHour": ts.hour,
+                "itdTimeMinute": ts.minute,
+                "name_dm": name,
+            }
+        )
+        if place is None:
+            self.post_data.pop("placeInfo_dm", None)
+            self.post_data.pop("placeState_dm", None)
+            self.post_data.pop("place_dm", None)
+        else:
+            self.post_data.update(
+                {"placeInfo_dm": "invalid", "placeState_dm": "empty", "place_dm": place}
+            )
+        departures = list()
+        async with aiohttp.ClientSession() as session:
+            async with session.post(self.url, data=self.post_data) as response:
+                # EFA may return JSON with a text/html Content-Type, which response.json() does not like.
+                departures = json.loads(await response.text())
+
+        return list(map(EFADeparture, departures["departureList"]))
+
+
+class EFADeparture:
+    def __init__(self, data):
+        self.line = data["servingLine"]["symbol"]
+        self.train_no = data["servingLine"].get("trainNum", None)
+        self.occupancy = data.get("occupancy", None)
+        self.platform = data.get("platform", None)  # platformName?
+        self.direction = data["servingLine"].get("direction", None)
+
+        # Ensure compatibility with DB HAFAS
+        if self.line.startswith("U") and not " " in self.line:
+            self.line = "U " + self.line[1:]
+
+        datetime = data["dateTime"]
+        year = int(datetime["year"])
+        month = int(datetime["month"])
+        day = int(datetime["day"])
+        hour = int(datetime["hour"])
+        minute = int(datetime["minute"])
+        self.iso8601 = f"{year:04d}-{month:02d}-{day:02d}T{hour:02d}:{minute:02d}"
+
+    def __repr__(self):
+        return f"EFADeparture<line {self.line} to {self.direction}, scheduled departure at {self.iso8601}>"
+
+
 class TransportAPIs:
     def __init__(self):
         self.apis = list()
@@ -94,8 +175,10 @@ class Departure:
             self.when = None
         try:
             self.plannedWhen = dateutil.parser.parse(self.plannedWhen)
+            self.iso8601 = self.plannedWhen.strftime("%Y-%m-%dT%H:%M")
         except TypeError:
             self.plannedWhen = None
+            self.iso8601
 
         if self.cancelled:
             self.classes += " cancelled"
@@ -111,6 +194,9 @@ class Departure:
             self.delay = self.delay // 60
             self.delay = f"{self.delay:+.0f}"
 
+    def __repr__(self):
+        return f"Departure<line {self.line} to {self.direction}, scheduled departure at {self.iso8601}>"
+
     def set_relative(self, now):
         minutes = (self.sort_by - now) // 60
         if minutes < 1:
@@ -119,6 +205,22 @@ class Departure:
             self.relativeWhen = f"{minutes:.0f} min"
         else:
             self.relativeWhen = f"{minutes//60:.0f}h {minutes%60:.0f}min"
+
+    def add_efa(self, candidates):
+        dest_candidates = list()
+        for candidate in candidates:
+            if candidate.iso8601 != self.iso8601:
+                continue
+            if candidate.line != self.line.name:
+                continue
+            dest_candidates.append(candidate)
+        if len(dest_candidates) == 1:
+            self._add_efa(dest_candidates[0])
+        # else: TODO check destination
+
+    def _add_efa(self, efa_departure):
+        if efa_departure.platform and not self.platform:
+            self.platform = efa_departure.platform
 
 
 class Line:
@@ -142,6 +244,9 @@ class Line:
                 self.name = self.name[4:]
             self.css_class = "bus"
 
+    def __repr__(self):
+        return self.name
+
 
 async def show_departure_board(request):
     try:
@@ -158,15 +263,14 @@ async def show_departure_board(request):
     if type(departures) is dict and departures.get("error", False):
         return web.HTTPNotFound(body=json.dumps(departures), headers=headers)
 
+    now = datetime.now()
+    now_ts = now.timestamp()
+
     departures = list(map(Departure, departures))
 
-    if len(departures):
-        efa_endpoint = apis.get_efa(departures[0].location)
-
     station_name_freq = dict()
-    now = datetime.now().timestamp()
     for departure in departures:
-        departure.set_relative(now)
+        departure.set_relative(now_ts)
         station_name_freq[departure.station_name] = (
             station_name_freq.get(departure.station_name, 0) + 1
         )
@@ -175,6 +279,21 @@ async def show_departure_board(request):
         station_name = max(station_name_freq.keys(), key=lambda k: station_name_freq[k])
     else:
         station_name = "NVM"
+
+    efa_by_iso8601 = dict()
+
+    if len(departures) and ", " in station_name:
+        name, place = station_name.split(", ")
+        efa_endpoint = apis.get_efa(departures[0].location)
+        efa = EFA(efa_endpoint["endpoint"])
+        efa_departures = await efa.get_departures(place, name, now)
+        for departure in efa_departures:
+            if departure.iso8601 not in efa_by_iso8601:
+                efa_by_iso8601[departure.iso8601] = list()
+            efa_by_iso8601[departure.iso8601].append(departure)
+
+    for departure in departures:
+        departure.add_efa(efa_by_iso8601.get(departure.iso8601, list()))
 
     departure_board = env.get_template("departure_list.html")
     return web.Response(
