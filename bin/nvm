@@ -14,8 +14,10 @@ import dateutil.parser
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+import geojson
 import json
 import os
+import shapely.geometry
 
 headers = {
     "Access-Control-Allow-Origin": "*",
@@ -30,6 +32,31 @@ ajax_headers = {
 db_rest_api = os.getenv("NVM_DB_REST_API", "https://v5.db.transport.rest")
 
 env = Environment(loader=FileSystemLoader("templates"), autoescape=select_autoescape())
+apis = None
+
+
+class TransportAPIs:
+    def __init__(self):
+        self.apis = list()
+        base = "ext/transport-apis/data/de"
+        for filename in os.listdir(base):
+            with open(f"{base}/{filename}", "r") as f:
+                data = json.load(f)
+            if data["type"].get("efa", False):
+                try:
+                    area = data["coverage"]["realtimeCoverage"]["area"]
+                except KeyError:
+                    continue
+                # surely there must be a more elegant way to load a JSON sub-dict as GeoJSON
+                area = geojson.loads(json.dumps(area))
+                self.apis.append((data["options"], shapely.geometry.shape(area)))
+
+    def get_efa(self, location):
+        location = shapely.geometry.Point(*location)
+        for api, area in self.apis:
+            if area.contains(location):
+                return api
+        return None
 
 
 class Departure:
@@ -42,10 +69,17 @@ class Departure:
         self.classes = str()
 
         self.station_name = None
-        self.stop_name = None
 
         self.stop_name = obj.get("stop", dict()).get("name", None)
         self.station_name = obj.get("station", dict()).get("name", self.stop_name)
+
+        try:
+            self.location = (
+                obj["stop"]["location"]["longitude"],
+                obj["stop"]["location"]["latitude"],
+            )
+        except KeyError:
+            self.location = None
 
         if "," in self.direction:
             self.direction, self.suffix = self.direction.split(",", maxsplit=1)
@@ -126,6 +160,9 @@ async def show_departure_board(request):
 
     departures = list(map(Departure, departures))
 
+    if len(departures):
+        efa_endpoint = apis.get_efa(departures[0].location)
+
     station_name_freq = dict()
     now = datetime.now().timestamp()
     for departure in departures:
@@ -189,6 +226,8 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, metavar="PORT", default=8080)
     parser.add_argument("--prefix", type=str, metavar="PATH", default="/")
     args = parser.parse_args()
+
+    apis = TransportAPIs()
 
     app = web.Application()
     app.router.add_get(args.prefix, show_landing_page)
