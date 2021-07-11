@@ -80,6 +80,25 @@ document.addEventListener("DOMContentLoaded", function() {
 		}).then(response => response.json()).then(processResult);
 	};
 
+	const showError = function(header, text, code) {
+		const errnode = document.createElement("div");
+		const errhead = document.createElement("strong");
+		const errtext = document.createTextNode(text);
+		const errcode = document.createElement("div");
+
+		errnode.className = "error";
+		errcode.className = "errcode";
+
+		errhead.textContent = header;
+		errcode.textContent = code;
+
+		errnode.appendChild(errhead);
+		errnode.appendChild(errtext);
+		errnode.appendChild(errcode);
+
+		geoLocationButton.replaceWith(errnode);
+	}
+
 	const processError = function(error) {
 		if (error.code == error.PERMISSION_DENIED) {
 			showError('Standortanfrage nicht möglich.', 'Vermutlich fehlen die Rechte im Browser oder der Android Location Service ist deaktiviert.', 'geolocation.error.PERMISSION_DENIED');
