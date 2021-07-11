@@ -5,16 +5,15 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
-import argparse
 
 import aiohttp
 from aiohttp import web
+import argparse
 from datetime import datetime
 import dateutil.parser
-
-from jinja2 import Environment, FileSystemLoader, select_autoescape
-
 import geojson
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+import logging
 import json
 import os
 import shapely.geometry
@@ -84,6 +83,7 @@ class EFA:
                 {"placeInfo_dm": "invalid", "placeState_dm": "empty", "place_dm": place}
             )
         departures = list()
+        logging.debug(f"Requesting '{place}' '{name}' from {self.url}")
         async with aiohttp.ClientSession() as session:
             async with session.post(self.url, data=self.post_data) as response:
                 # EFA may return JSON with a text/html Content-Type, which response.json() does not like.
@@ -254,10 +254,12 @@ async def show_departure_board(request):
     except ValueError:
         return web.HTTPBadRequest(text="EVA must be a number at the moment")
 
+    request_url = (
+        f"{db_rest_api}/stops/{eva}/departures?results=60&duration=120&stopovers=true"
+    )
+    logging.debug(f"Requesting '{eva}' departures from {request_url}")
     async with aiohttp.ClientSession() as session:
-        async with session.get(
-            f"{db_rest_api}/stops/{eva}/departures?results=60&duration=120&stopovers=true"
-        ) as response:
+        async with session.get(request_url) as response:
             departures = await response.json()
 
     if type(departures) is dict and departures.get("error", False):
@@ -304,10 +306,10 @@ async def show_departure_board(request):
 
 async def redirect_to_departure_board(request):
     stop_name = request.query["name"]
+    request_url = f"{db_rest_api}/locations?query={stop_name}&poi=false&addresses=false"
+    logging.debug(f"Requesting stops matcihng '{stop_name}' from {request_url}")
     async with aiohttp.ClientSession() as session:
-        async with session.get(
-            f"{db_rest_api}/locations?query={stop_name}&poi=false&addresses=false"
-        ) as response:
+        async with session.get(request_url) as response:
             stops = await response.json()
     stops_page = env.get_template("stops.html")
     return web.Response(
@@ -328,10 +330,10 @@ async def ajax_geolocation(request):
     request_data = await request.json()
     lat = request_data["lat"]
     lon = request_data["lon"]
+    request_url = f"{db_rest_api}/stops/nearby?latitude={lat}&longitude={lon}"
+    logging.debug(f"Requesting stops near {lat}/{lon} from {request_url}")
     async with aiohttp.ClientSession() as session:
-        async with session.get(
-            f"{db_rest_api}/stops/nearby?latitude={lat}&longitude={lon}"
-        ) as response:
+        async with session.get(request_url) as response:
             departures = await response.json()
     return web.Response(
         body=json.dumps(departures),
@@ -344,7 +346,21 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="eva to efa gateway")
     parser.add_argument("--port", type=int, metavar="PORT", default=8080)
     parser.add_argument("--prefix", type=str, metavar="PATH", default="/")
+    parser.add_argument(
+        "--log-level",
+        metavar="LEVEL",
+        choices=["debug", "info", "warning", "error"],
+        default="warning",
+        help="Set log level",
+    )
     args = parser.parse_args()
+
+    if args.log_level:
+        numeric_level = getattr(logging, args.log_level.upper(), None)
+        if not isinstance(numeric_level, int):
+            print(f"Invalid log level: {args.log_level}", file=sys.stderr)
+            sys.exit(1)
+        logging.basicConfig(level=numeric_level)
 
     apis = TransportAPIs()
 
