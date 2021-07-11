@@ -289,12 +289,13 @@ async def show_departure_board(request):
     if len(departures) and ", " in station_name:
         name, place = station_name.split(", ")
         efa_endpoint = apis.get_efa(departures[0].location)
-        efa = EFA(efa_endpoint["endpoint"])
-        efa_departures = await efa.get_departures(place, name, now)
-        for departure in efa_departures:
-            if departure.iso8601 not in efa_by_iso8601:
-                efa_by_iso8601[departure.iso8601] = list()
-            efa_by_iso8601[departure.iso8601].append(departure)
+        if efa_endpoint:
+            efa = EFA(efa_endpoint["endpoint"])
+            efa_departures = await efa.get_departures(place, name, now)
+            for departure in efa_departures:
+                if departure.iso8601 not in efa_by_iso8601:
+                    efa_by_iso8601[departure.iso8601] = list()
+                efa_by_iso8601[departure.iso8601].append(departure)
 
     for departure in departures:
         departure.add_efa(efa_by_iso8601.get(departure.iso8601, list()))
