@@ -15,7 +15,7 @@
 		{% endif %}
 		<ul class="departures">
 			{% for departure in departures %}
-				<li class="{{ departure.classes }}" onclick="location.href='https://dbf.finalrewind.org/map/{{ departure.tripId }}/0';">
+				<li class="{{ departure.classes }}" onclick="location.href='https://dbf.finalrewind.org/map/{{ departure.tripId }}/0?from={{ departure.quoted_stop_name }}';">
 					<span class="line {{ departure.line.css_class }}">{{ departure.line.name }}</span>
 					{% if departure.suffix %}
 						<span class="destsuffix">{{ departure.suffix }}</span>

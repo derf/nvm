@@ -154,6 +154,8 @@ class Departure:
         self.stop_name = obj.get("stop", dict()).get("name", None)
         self.station_name = obj.get("station", dict()).get("name", self.stop_name)
 
+        self.quoted_stop_name = aiohttp.helpers.quote(self.stop_name)
+
         try:
             self.location = (
                 obj["stop"]["location"]["longitude"],
