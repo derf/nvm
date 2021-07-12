@@ -333,7 +333,7 @@ async def ajax_geolocation(request):
     request_data = await request.json()
     lat = request_data["lat"]
     lon = request_data["lon"]
-    request_url = f"{db_rest_api}/stops/nearby?latitude={lat}&longitude={lon}"
+    request_url = f"{db_rest_api}/stops/nearby?latitude={lat}&longitude={lon}&results=10"
     logging.debug(f"Requesting stops near {lat}/{lon} from {request_url}")
     async with aiohttp.ClientSession() as session:
         async with session.get(request_url) as response:
