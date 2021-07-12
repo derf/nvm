@@ -250,11 +250,13 @@ class Line:
         return self.name
 
 
-async def show_departure_board(request):
-    try:
-        eva = int(request.match_info.get("eva"))
-    except ValueError:
-        return web.HTTPBadRequest(text="EVA must be a number at the moment")
+async def show_departure_board(request, eva=None):
+
+    if eva is None:
+        try:
+            eva = int(request.match_info.get("eva"))
+        except ValueError:
+            return web.HTTPBadRequest(text="EVA must be a number at the moment")
 
     request_url = (
         f"{db_rest_api}/stops/{eva}/departures?results=60&duration=120&stopovers=true"
@@ -314,6 +316,11 @@ async def redirect_to_departure_board(request):
     async with aiohttp.ClientSession() as session:
         async with session.get(request_url) as response:
             stops = await response.json()
+
+    for stop in stops:
+        if stop_name.lower() == stop["name"].lower():
+            return await show_departure_board(request, stop["id"])
+
     stops_page = env.get_template("stops.html")
     return web.Response(
         body=stops_page.render(title=f"Suche nach „{stop_name}“", stops=stops),
@@ -333,7 +340,9 @@ async def ajax_geolocation(request):
     request_data = await request.json()
     lat = request_data["lat"]
     lon = request_data["lon"]
-    request_url = f"{db_rest_api}/stops/nearby?latitude={lat}&longitude={lon}&results=10"
+    request_url = (
+        f"{db_rest_api}/stops/nearby?latitude={lat}&longitude={lon}&results=10"
+    )
     logging.debug(f"Requesting stops near {lat}/{lon} from {request_url}")
     async with aiohttp.ClientSession() as session:
         async with session.get(request_url) as response:
