@@ -302,6 +302,8 @@ async def show_departure_board(request, eva=None):
     for departure in departures:
         departure.add_efa(efa_by_iso8601.get(departure.iso8601, list()))
 
+    departures = sorted(departures, key=lambda departure: departure.sort_by)
+
     departure_board = env.get_template("departure_list.html")
     return web.Response(
         body=departure_board.render(title=station_name, departures=departures),
