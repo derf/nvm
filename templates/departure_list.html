@@ -23,7 +23,10 @@
 					<span class="dest" aria-label="nach {{ departure.direction }}">{{ departure.direction }}
 					</span>
 					{% if departure.cancelled and departure.plannedWhen %}
-						<span class="time" aria-label="um {{ departure.plannedWhen }}">{{ departure.plannedWhen.strftime("%H:%M") }}</span>
+						<span class="time" aria-label="fällt aus, planmäßige Abfahrt um {{ departure.plannedWhen }}">
+							<span class="delay">fällt aus</span>
+							{{ departure.plannedWhen.strftime("%H:%M") }}
+						</span>
 					{% else %}
 						<span class="time" aria-label="Abfahrtszeit: {{ departure.relativeWhen }}">
 							{% if departure.delay %}
