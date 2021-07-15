@@ -87,7 +87,10 @@ class EFA:
         async with aiohttp.ClientSession() as session:
             async with session.post(self.url, data=self.post_data) as response:
                 # EFA may return JSON with a text/html Content-Type, which response.json() does not like.
-                departures = json.loads(await response.text())
+                try:
+                    departures = json.loads(await response.text())
+                except json.decoder.JSONDecodeError:
+                    raise RuntimeError(response) from None
 
         return list(map(EFADeparture, departures["departureList"]))
 
@@ -288,16 +291,26 @@ async def show_departure_board(request, eva=None):
 
     efa_by_iso8601 = dict()
 
+    warning = None
     if len(departures) and ", " in station_name:
         name, place = station_name.split(", ")
         efa_endpoint = apis.get_efa(departures[0].location)
         if efa_endpoint:
             efa = EFA(efa_endpoint["endpoint"])
-            efa_departures = await efa.get_departures(place, name, now)
-            for departure in efa_departures:
-                if departure.iso8601 not in efa_by_iso8601:
-                    efa_by_iso8601[departure.iso8601] = list()
-                efa_by_iso8601[departure.iso8601].append(departure)
+            try:
+                efa_departures = await efa.get_departures(place, name, now)
+                for departure in efa_departures:
+                    if departure.iso8601 not in efa_by_iso8601:
+                        efa_by_iso8601[departure.iso8601] = list()
+                    efa_by_iso8601[departure.iso8601].append(departure)
+            except RuntimeError as e:
+                (response,) = e.args
+                text = await response.text()
+                warning = {
+                    "lead": "Detailabfrage fehlgeschlagen:",
+                    "body": "Angaben sind möglicherweise unvollständig",
+                    "code": f"""EFA server {efa_endpoint["endpoint"]} returned HTTP {response.status} '{text[:10224]}'""",
+                }
 
     for departure in departures:
         departure.add_efa(efa_by_iso8601.get(departure.iso8601, list()))
@@ -306,7 +319,9 @@ async def show_departure_board(request, eva=None):
 
     departure_board = env.get_template("departure_list.html")
     return web.Response(
-        body=departure_board.render(title=station_name, departures=departures),
+        body=departure_board.render(
+            title=station_name, departures=departures, warning=warning
+        ),
         headers=headers,
     )
 
@@ -314,9 +329,24 @@ async def show_departure_board(request, eva=None):
 async def redirect_to_departure_board(request):
     stop_name = request.query["name"]
     request_url = f"{db_rest_api}/locations?query={stop_name}&poi=false&addresses=false"
-    logging.debug(f"Requesting stops matcihng '{stop_name}' from {request_url}")
+    logging.debug(f"Requesting stops matching '{stop_name}' from {request_url}")
     async with aiohttp.ClientSession() as session:
         async with session.get(request_url) as response:
+            if response.status != 200:
+                error = await response.text()
+                landing_page = env.get_template("landing_page.html")
+                return web.Response(
+                    body=landing_page.render(
+                        title="NVM",
+                        error={
+                            "lead": "Haltestellensuche fehlgeschlagen",
+                            "body": "",
+                            "code": f"Server returned HTTP {response.status} '{error[:10224]}'",
+                        },
+                    ),
+                    headers=headers,
+                    status=500,
+                )
             stops = await response.json()
 
     for stop in stops:
@@ -348,6 +378,18 @@ async def ajax_geolocation(request):
     logging.debug(f"Requesting stops near {lat}/{lon} from {request_url}")
     async with aiohttp.ClientSession() as session:
         async with session.get(request_url) as response:
+            if response.status != 200:
+                text = await response.text()
+                return web.Response(
+                    body=json.dumps(
+                        {
+                            "error": True,
+                            "msg": f"HTTP {response.status} '{text[:1024]}'",
+                        }
+                    ),
+                    headers=ajax_headers,
+                    status=500,
+                )
             departures = await response.json()
     return web.Response(
         body=json.dumps(departures),

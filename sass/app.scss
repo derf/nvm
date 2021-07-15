@@ -37,13 +37,19 @@ html {
 
 .warning {
 	padding: 15px;
-	margin-bottom: 20px;
 	border: 1px solid #faebcc;
 	border-radius: 4px;
 	color: #8a6d3b;
 	background-color: #fcf8e3;
 	margin-left: auto;
 	margin-right: auto;
+
+	.errcode {
+		font-family: Monospace;
+		margin-top: 2em;
+		font-size: 100%;
+		color: #aaaaaa;
+	}
 }
 
 .error {

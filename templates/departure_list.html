@@ -10,6 +10,15 @@
 
 <div class="container">
 	<div class="content">
+		{% if warning %}
+			<div class="content">
+				<div class="warning">
+					<strong>{{ warning["lead"] }}</strong>
+					{{ warning["body"] }}
+					<div class="errcode">{{ warning["code"] }}</div>
+				</div>
+			</div>
+		{% endif %}
 		{% if not departures %}
 			<div class="globalnote">Keine Abfahrten innerhalb der nächsten zwei Stunden</div>
 		{% endif %}

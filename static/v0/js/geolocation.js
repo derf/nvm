@@ -11,6 +11,12 @@ document.addEventListener("DOMContentLoaded", function() {
 	const processResult = function(results) {
 		const list = document.createElement("ul");
 		list.className = "stops";
+
+		if (results.error) {
+			showError("Backend-Fehler:", results.msg);
+			return;
+		}
+
 		for (var result in results) {
 			result = results[result];
 			const listentry = document.createElement("li");

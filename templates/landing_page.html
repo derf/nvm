@@ -8,6 +8,15 @@
 <body>
 {% include 'navbar.html' %}
 <div class="container">
+	{% if error %}
+		<div class="content">
+			<div class="error">
+				<strong>{{ error["lead"] }}</strong>
+				{{ error["body"] }}
+				<div class="errcode">{{ error["code"] }}</div>
+			</div>
+		</div>
+	{% endif %}
 	<div class="content">
 		<div class="geolocation">
 			<button id="geolocationsearch">Haltestellen in der Umgebung suchen</button>
