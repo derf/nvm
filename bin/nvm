@@ -92,6 +92,14 @@ class EFA:
                 except json.decoder.JSONDecodeError:
                     raise RuntimeError(response) from None
 
+        if (
+            departures is None
+            or not "departureList" in departures
+            or departures["departureList"] is None
+        ):
+            logging.debug(f"EFA response has no departureList")
+            return list()
+
         return list(map(EFADeparture, departures["departureList"]))
 
 
