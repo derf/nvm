@@ -18,9 +18,13 @@
 		</div>
 	{% endif %}
 	<div class="content">
-		<div class="geolocation">
-			<button id="geolocationsearch">Haltestellen in der Umgebung suchen</button>
-		</div>
+		<p>
+		NVM ist ein inoffizieller Abfahrtsmonitor für Nahverkehr in Deutschland
+		und Umgebung. Diese Seite ist ein kostenfreies, privat betriebenes
+		Projekt ohne Verfügbarkeitsgarantie. Alle Angaben ohne Gewähr.
+		</p>
+	</div>
+	<div class="content">
 		<form action="/find/stop">
 			<label for="name">Haltestelle:</label>
 			<input id="name" name="name" required type="text">
@@ -28,6 +32,11 @@
 				Suchen
 			</button>
 		</form>
+	</div>
+	<div class="content">
+		<div class="geolocation">
+			<button id="geolocationsearch">Haltestellen in der Umgebung suchen</button>
+		</div>
 	</div>
 </div>
 </body>
