@@ -32,6 +32,7 @@ db_rest_api = os.getenv("NVM_DB_REST_API", "https://v5.db.transport.rest")
 
 env = Environment(loader=FileSystemLoader("templates"), autoescape=select_autoescape())
 apis = None
+nvm_version = None
 
 
 class EFA:
@@ -261,6 +262,30 @@ class Line:
         return self.name
 
 
+def meta_about(request):
+    about = env.get_template("about.html")
+    return web.Response(
+        body=about.render(version=nvm_version),
+        headers=headers,
+    )
+
+
+def meta_imprint(request):
+    about = env.get_template("imprint.html")
+    return web.Response(
+        body=about.render(version=nvm_version),
+        headers=headers,
+    )
+
+
+def meta_privacy(request):
+    about = env.get_template("privacy.html")
+    return web.Response(
+        body=about.render(version=nvm_version),
+        headers=headers,
+    )
+
+
 async def show_departure_board(request, eva=None):
 
     if eva is None:
@@ -328,7 +353,10 @@ async def show_departure_board(request, eva=None):
     departure_board = env.get_template("departure_list.html")
     return web.Response(
         body=departure_board.render(
-            title=station_name, departures=departures, warning=warning
+            title=station_name,
+            departures=departures,
+            warning=warning,
+            version=nvm_version,
         ),
         headers=headers,
     )
@@ -351,6 +379,7 @@ async def redirect_to_departure_board(request):
                             "body": "",
                             "code": f"Server returned HTTP {response.status} '{error[:10224]}'",
                         },
+                        version=nvm_version,
                     ),
                     headers=headers,
                     status=500,
@@ -363,7 +392,9 @@ async def redirect_to_departure_board(request):
 
     stops_page = env.get_template("stops.html")
     return web.Response(
-        body=stops_page.render(title=f"Suche nach „{stop_name}“", stops=stops),
+        body=stops_page.render(
+            title=f"Suche nach „{stop_name}“", stops=stops, version=nvm_version
+        ),
         headers=headers,
     )
 
@@ -371,7 +402,7 @@ async def redirect_to_departure_board(request):
 async def show_landing_page(request):
     landing_page = env.get_template("landing_page.html")
     return web.Response(
-        body=landing_page.render(title="NVM"),
+        body=landing_page.render(title="NVM", version=nvm_version),
         headers=headers,
     )
 
@@ -417,6 +448,7 @@ if __name__ == "__main__":
         default="warning",
         help="Set log level",
     )
+    parser.add_argument("--version-str", type=str, metavar="VERSION", default="git")
     args = parser.parse_args()
 
     if args.log_level:
@@ -427,11 +459,15 @@ if __name__ == "__main__":
         logging.basicConfig(level=numeric_level)
 
     apis = TransportAPIs()
+    nvm_version = args.version_str
 
     app = web.Application()
     app.router.add_get(args.prefix, show_landing_page)
     app.router.add_get(f"{args.prefix}board/{{eva}}", show_departure_board)
     app.router.add_post(f"{args.prefix}geolocation", ajax_geolocation)
     app.router.add_get(f"{args.prefix}find/stop", redirect_to_departure_board)
+    app.router.add_get(f"{args.prefix}meta/about", meta_about)
+    app.router.add_get(f"{args.prefix}meta/imprint", meta_imprint)
+    app.router.add_get(f"{args.prefix}meta/privacy", meta_privacy)
     app.router.add_static(f"{args.prefix}static", "static")
     web.run_app(app, host="localhost", port=args.port)

@@ -14,6 +14,11 @@ html {
 	margin-right: auto;
 }
 
+a {
+	color: $link-color;
+	text-decoration: none;
+}
+
 .globalnote {
 	margin-top: 1em;
 	font-style: italic;
@@ -329,6 +334,12 @@ ul.departures {
 			}
 		}
 	}
+}
+
+.about {
+	color: $fg2;
+	margin-top: 2em;
+
 }
 
 @font-face {
