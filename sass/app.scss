@@ -1,7 +1,7 @@
 body {
 	margin: 0;
-	color: black;
-	background-color: white;
+	color: $fg;
+	background-color: $bg;
 }
 
 html {
@@ -149,7 +149,7 @@ ul.stops {
 		width: 100%;
 		position: relative;
 		border-bottom: 1px solid grey;
-		background-color: white;
+		background-color: $bg;
 		cursor: pointer;
 
 		.name {
@@ -160,7 +160,7 @@ ul.stops {
 			overflow: hidden;
 			background-color: transparent;
 			font-size: 150%;
-			color: black;
+			color: $fg;
 		}
 
 		.distance {
@@ -200,33 +200,33 @@ ul.stops {
 			}
 
 			.longdistance {
-				border: 0.1em solid #ffcccc;
+				border: 0.1em solid $longdistance-bg;
 			}
 
 			.regional {
-				background-color: #eeeeee;
+				background-color: $regional-bg;
 			}
 
 			.tram {
-				background-color:#ffcccc;
+				background-color: $tram-bg;
 			}
 
 			.taxi {
-				background-color:#eeaaee;
+				background-color: $taxi-bg;
 				font-weight: normal;
 			}
 
 			.suburban {
-				background-color:#aaffba;
+				background-color: $suburban-bg;
 				border-radius: 30px;
 			}
 
 			.subway {
-				background-color:#aac0ff;
+				background-color: $subway-bg;
 			}
 
 			.bus {
-				background-color:#eeaaee;
+				background-color: $bus-bg;
 				border-radius: 10px;
 			}
 		}
@@ -252,7 +252,7 @@ ul.departures {
 		position: relative;
 		cursor: pointer;
 		border-bottom: 1px solid grey;
-		background-color: white;
+		background-color: $bg;
 
 		&.cancelled {
 			background-color: #ffe7d0;
@@ -268,31 +268,31 @@ ul.departures {
 		max-width: 5em;
 		overflow: hidden;
 		font-size: 120%;
-		background-color: #eeeeee;
+		background-color: $regional-bg;
 		font-weight: bold;
 		padding-left: 0.1em;
 		padding-right: 0.1em;
 	}
 
 	.longdistance {
-		border: 0.1em solid #ffcccc;
+		border: 0.1em solid $longdistance-bg;
 	}
 
 	.tram {
-		background-color:#ffcccc;
+		background-color: $tram-bg;
 	}
 
 	.suburban {
-		background-color:#aaffba;
+		background-color: $suburban-bg;
 		border-radius: 30px;
 	}
 
 	.subway {
-		background-color:#aac0ff;
+		background-color: $subway-bg;
 	}
 
 	.bus {
-		background-color:#eeaaee;
+		background-color: $bus-bg;
 		border-radius: 10px;
 	}
 
@@ -304,7 +304,7 @@ ul.departures {
 		overflow: hidden;
 		background-color: transparent;
 		font-size: 150%;
-		color: black;
+		color: $fg;
 	}
 
 	.destsuffix {
@@ -322,7 +322,7 @@ ul.departures {
 		top: 1px;
 		background-color: transparent;
 		padding-left: 0.2em;
-		color: black;
+		color: $fg;
 
 		.delay {
 			padding-right: 1ex;
@@ -338,7 +338,7 @@ ul.departures {
 		background-color: transparent;
 		font-size: 140%;
 		font-weight: bold;
-		color: black;
+		color: $fg;
 	}
 }
 
