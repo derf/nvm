@@ -5,5 +5,5 @@
 
 set -ex
 
-sassc -t compressed sass/dark.scss static/v0/css/dark.min.css
-sassc -t compressed sass/light.scss static/v0/css/light.min.css
+sassc -t compressed sass/dark.scss static/css/dark.min.css
+sassc -t compressed sass/light.scss static/css/light.min.css

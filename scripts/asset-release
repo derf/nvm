@@ -1,0 +1,15 @@
+#!/bin/sh
+# Copyright (C) 2020 Daniel Friesel
+#
+# SPDX-License-Identifier: CC0-1.0
+
+set -ex
+
+current="$(find static/v* | tail -n 1 | grep -o '[0-9]*$')"
+prev=$((current - 1))
+next=$((current + 1))
+
+git mv static/v${prev} static/v${next}
+
+perl -pi -e "s!/static/v${current}/!/static/v${next}/!g" \
+	sass/*.scss static/css/*.min.css templates/*
