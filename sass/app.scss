@@ -14,9 +14,57 @@ html {
 	margin-right: auto;
 }
 
+.textcontent {
+	margin-left: 1ex;
+	margin-right: 1ex;
+}
+
 a {
 	color: $link-color;
 	text-decoration: none;
+}
+
+input, select, button {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	min-height: 1.8em;
+	border-radius: 4px;
+	font-size: 90%;
+	color: $fg;
+	background-color: $bg;
+	border: 1px solid $bg1;
+	box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+	vertical-align: middle;
+	padding-top: 1ex;
+	padding-bottom: 1ex;
+	margin-top: 1ex;
+	margin-bottom: 1ex;
+}
+
+button {
+	transition: background-color .3s;
+	color: #fff;
+	background-color: #337ab7;
+	border-color: #2e6da4;
+	cursor: pointer;
+	box-shadow: none;
+
+	&:active, &:focus, &:hover {
+		color: #fff;
+		background-color: #286090;
+		border-color: #204d74;
+	}
+}
+
+input[type="text"] {
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+	text-align: left;
+	box-sizing: border-box;
 }
 
 .globalnote {
