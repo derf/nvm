@@ -350,7 +350,11 @@ async def show_departure_board(request, eva=None):
 
     departures = sorted(departures, key=lambda departure: departure.sort_by)
 
-    departure_board = env.get_template("departure_list.html")
+    if request.query.get("ajax", False):
+        departure_board = env.get_template("departure_list.html")
+    else:
+        departure_board = env.get_template("departures_page.html")
+
     return web.Response(
         body=departure_board.render(
             title=station_name,

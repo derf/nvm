@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+	<title>{{ title }}</title>
+	{% include 'header.html' %}
+	<script src="/static/v1/js/reload.js"></script>
+</head>
+<body>
+
+{% include 'navbar.html' %}
+
+<div class="container">
+	<div class="content">
+		{% if warning %}
+			<div class="content">
+				<div class="warning">
+					<strong>{{ warning["lead"] }}</strong>
+					{{ warning["body"] }}
+					<div class="errcode">{{ warning["code"] }}</div>
+				</div>
+			</div>
+		{% endif %}
+		{% if not departures %}
+			<div class="globalnote">Keine Abfahrten innerhalb der nächsten zwei Stunden</div>
+		{% endif %}
+		<ul class="departures" id="departurelist">
+			{% include 'departure_list.html' %}
+		</ul>
+	</div>
+</div>
+
+{% include 'footer.html' %}
+
+</body>
+</html>

@@ -1,14 +1,14 @@
 document.addEventListener("DOMContentLoaded", function() {
 	const geoLocationButton = document.getElementById('geolocationsearch');
 
-	const mkTextNode = function(className, textContent) {
+	const mkTextNode = (className, textContent) => {
 		const node = document.createElement("span");
 		node.className = className;
 		node.textContent = textContent;
 		return node
 	}
 
-	const processResult = function(results) {
+	const processResult = (results) => {
 		const list = document.createElement("ul");
 		list.className = "stops";
 
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		geoLocationButton.replaceWith(list);
 	};
 
-	const processLocation = function(loc) {
+	const processLocation = (loc) => {
 		fetch('/geolocation', {
 			method: 'POST',
 			headers: {
@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		}).then(response => response.json()).then(processResult);
 	};
 
-	const showError = function(header, text, code) {
+	const showError = (header, text, code) => {
 		const errnode = document.createElement("div");
 		const errhead = document.createElement("strong");
 		const errtext = document.createTextNode(text);
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		geoLocationButton.replaceWith(errnode);
 	}
 
-	const processError = function(error) {
+	const processError = (error) => {
 		if (error.code == error.PERMISSION_DENIED) {
 			showError('Standortanfrage nicht möglich.', 'Vermutlich fehlen die Rechte im Browser oder der Android Location Service ist deaktiviert.', 'geolocation.error.PERMISSION_DENIED');
 		} else if (error.code == error.POSITION_UNAVAILABLE) {
@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		}
 	};
 
-	const getGeoLocation = function() {
+	const getGeoLocation = () => {
 		geoLocationButton.textContent = "Suche Haltestellen ...";
 		geoLocationButton.disabled = true;
 		navigator.geolocation.getCurrentPosition(processLocation, processError);
