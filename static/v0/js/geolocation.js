@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 			note.className = "distance";
 			if (result.distance >= 1000) {
-				note.textContent = result.distance.toFixed(1) + " km"
+				note.textContent = (result.distance / 1000).toFixed(1) + " km"
 			} else {
 				note.textContent = result.distance + " m"
 			}
