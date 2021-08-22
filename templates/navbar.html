@@ -2,9 +2,11 @@
 	<nav style="color: #ffffff; background-color: #001f8f;">
 		<div class="container">
 			{% if nav_link %}
-				<a class="main" href="{{ nav_link }}">{{ title }}</a>
+				<a class="main" href="{{ nav_link }}">{{ title }}
+					<span><i class="material-icons" id="syncfailedmarker" style="display: none;">sync_problem</i></span></a>
 			{% else %}
-				<span class="main">{{ title }}</span>
+				<span class="main">{{ title }}
+					<span><i class="material-icons" id="syncfailedmarker" style="display: none;">sync_problem</i></span></span>
 			{% endif %}
 			<ul id="nav-mobile" style="float: right;">
 				<li><a href="/"><i class="material-icons" aria-label="Stationen in der Umgebung suchen">my_location</i></a></li>
