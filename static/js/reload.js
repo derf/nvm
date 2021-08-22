@@ -7,7 +7,13 @@ document.addEventListener("DOMContentLoaded", function() {
 	};
 
 	const fetchDepartures = () => {
-		fetch(window.location.href + '?ajax=1')
+		var fetchUrl = window.location.href;
+		if (fetchUrl.includes("?")) {
+			fetchUrl += "&ajax=1";
+		} else {
+			fetchUrl += "?ajax=1";
+		}
+		fetch(fetchUrl)
 			.then(response => {
 				if (!response.ok) {
 					throw Error(response.statusText);
