@@ -1,5 +1,5 @@
 {% for departure in departures %}
-	<li class="{{ departure.classes }}">
+	<li class="{{ departure.classes }}" data-timestamp="{{ departure.sort_by }}">
 		<a href="https://dbf.finalrewind.org/map/{{ departure.tripId }}/0?from={{ departure.quoted_stop_name }}">
 			<span class="line {{ departure.line.css_class }}">{{ departure.line.name }}</span>
 			{% if departure.suffix %}
