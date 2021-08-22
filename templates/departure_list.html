@@ -1,26 +1,28 @@
 {% for departure in departures %}
-	<li class="{{ departure.classes }}" onclick="location.href='https://dbf.finalrewind.org/map/{{ departure.tripId }}/0?from={{ departure.quoted_stop_name }}';">
-		<span class="line {{ departure.line.css_class }}">{{ departure.line.name }}</span>
-		{% if departure.suffix %}
-			<span class="destsuffix">{{ departure.suffix }}</span>
-		{% endif %}
-		<span class="dest" aria-label="nach {{ departure.direction }}">{{ departure.direction }}
-		</span>
-		{% if departure.cancelled and departure.plannedWhen %}
-			<span class="time" aria-label="fällt aus, planmäßige Abfahrt um {{ departure.plannedWhen }}">
-				<span class="delay">fällt aus</span>
-				{{ departure.plannedWhen.strftime("%H:%M") }}
+	<li class="{{ departure.classes }}">
+		<a href="https://dbf.finalrewind.org/map/{{ departure.tripId }}/0?from={{ departure.quoted_stop_name }}">
+			<span class="line {{ departure.line.css_class }}">{{ departure.line.name }}</span>
+			{% if departure.suffix %}
+				<span class="destsuffix">{{ departure.suffix }}</span>
+			{% endif %}
+			<span class="dest" aria-label="nach {{ departure.direction }}">{{ departure.direction }}
 			</span>
-		{% else %}
-			<span class="time" aria-label="Abfahrtszeit: {{ departure.relativeWhen }}">
-				{% if departure.delay %}
-					<span class="delay" aria-label="{{ departure.delay }} Minuten Verspätung">({{ departure.delay }})</span>
-				{% endif %}
-				{{ departure.relativeWhen }}
-			</span>
-		{% endif %}
-		{% if departure.platform %}
-			<span class="platform" aria-label="Gleis/Bussteig {{ departure.platform }}">{{ departure.platform }}</span>
-		{% endif %}
+			{% if departure.cancelled and departure.plannedWhen %}
+				<span class="time" aria-label="fällt aus, planmäßige Abfahrt um {{ departure.plannedWhen }}">
+					<span class="delay">fällt aus</span>
+					{{ departure.plannedWhen.strftime("%H:%M") }}
+				</span>
+			{% else %}
+				<span class="time" aria-label="Abfahrtszeit: {{ departure.relativeWhen }}">
+					{% if departure.delay %}
+						<span class="delay" aria-label="{{ departure.delay }} Minuten Verspätung">({{ departure.delay }})</span>
+					{% endif %}
+					{{ departure.relativeWhen }}
+				</span>
+			{% endif %}
+			{% if departure.platform %}
+				<span class="platform" aria-label="Gleis/Bussteig {{ departure.platform }}">{{ departure.platform }}</span>
+			{% endif %}
+		</a>
 	</li>
 {% endfor %}

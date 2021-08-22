@@ -244,15 +244,20 @@ ul.departures {
 	padding:0;
 
 	> li {
-		display: block;
-		height: 3em;
-		width: 100%;
-		position: relative;
 		border-bottom: 1px solid grey;
 		background-color: $bg;
 
 		&.cancelled {
 			background-color: #ffe7d0;
+		}
+
+		a {
+			color: $fg;
+			text-decoration: none;
+			display: block;
+			height: 3em;
+			width: 100%;
+			position: relative;
 		}
 	}
 
