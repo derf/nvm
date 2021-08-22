@@ -248,7 +248,7 @@ ul.departures {
 		background-color: $bg;
 
 		&.cancelled {
-			background-color: #ffe7d0;
+			background-color: $cancelled-bg-color;
 		}
 
 		a {
