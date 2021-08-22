@@ -21,12 +21,14 @@ document.addEventListener("DOMContentLoaded", function() {
 			result = results[result];
 			const listentry = document.createElement("li");
 			const link = document.createElement("a");
+			const name = document.createElement("span");
 			const note = document.createElement("span");
 			const lines = document.createElement("span");
 
-			link.className = "name";
-			link.textContent = result.name;
 			link.href = "/board/" + result.id;
+
+			name.className = "name";
+			name.textContent = result.name;
 
 			note.className = "distance";
 			if (result.distance >= 1000) {
@@ -65,9 +67,10 @@ document.addEventListener("DOMContentLoaded", function() {
 				lines.appendChild(mkTextNode("taxi", "AST"));
 			}
 
+			link.appendChild(name);
+			link.appendChild(note);
+			link.appendChild(lines);
 			listentry.appendChild(link);
-			listentry.appendChild(note);
-			listentry.appendChild(lines);
 			list.appendChild(listentry);
 		}
 		geoLocationButton.replaceWith(list);
