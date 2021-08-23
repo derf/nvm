@@ -2,33 +2,51 @@
 
 <div><div class="arrival">
 {% if tripinfo.arrival %}
-An:
-{% if tripinfo.arrivalDelay %}
-<span class="delay">{{ tripinfo.arrival.strftime('%H:%M') }}</span>
-<br/>Plan: {{ tripinfo.plannedArrival.strftime('%H:%M') }}
-{% else %}
-{{ tripinfo.arrival.strftime('%H:%M') }}
-{% endif %}
+	An:
+	{% if tripinfo.arrivalDelay %}
+		<span class="delay">{{ tripinfo.arrival.strftime('%H:%M') }}</span>
+		<br/>Plan: {{ tripinfo.plannedArrival.strftime('%H:%M') }}
+	{% else %}
+		{{ tripinfo.arrival.strftime('%H:%M') }}
+	{% endif %}
+{% elif tripinfo.plannedArrival %}
+	{% if tripinfo.cancelled %}
+		<span class="delay">An: ––:––</span>
+		<br/>Plan: {{ tripinfo.plannedArrival.strftime('%H:%M') }}
+	{% else %}
+		An: ??:??
+		<br/>Plan: {{ tripinfo.plannedArrival.strftime('%H:%M') }}
+	{% endif %}
 {% endif %}
 </div></div>
 
 <div><div class="platform">
-{% if tripinfo.platform %}
-Steig {{ tripinfo.platform }}
+{% if tripinfo.cancelled %}
+	<span class="delay">Fahrt fällt aus</span>
+{% elif tripinfo.platform %}
+	Steig {{ tripinfo.platform }}
 {% else %}
-&nbsp;
+	&nbsp;
 {% endif %}
 </div></div>
 
 <div><div class="departure">
 {% if tripinfo.arrival %}
-Ab:
-{% if tripinfo.departureDelay %}
-<span class="delay">{{ tripinfo.departure.strftime('%H:%M') }}</span>
-<br/>Plan: {{ tripinfo.plannedDeparture.strftime('%H:%M') }}
-{% else %}
-{{ tripinfo.departure.strftime('%H:%M') }}
-{% endif %}
+	Ab:
+	{% if tripinfo.departureDelay %}
+		<span class="delay">{{ tripinfo.departure.strftime('%H:%M') }}</span>
+		<br/>Plan: {{ tripinfo.plannedDeparture.strftime('%H:%M') }}
+	{% else %}
+		{{ tripinfo.departure.strftime('%H:%M') }}
+	{% endif %}
+{% elif tripinfo.plannedDeparture %}
+	{% if tripinfo.cancelled %}
+		<span class="delay">Ab: ––:––</span>
+		<br/>Plan: {{ tripinfo.plannedDeparture.strftime('%H:%M') }}
+	{% else %}
+		Ab: ??:??
+		<br/>Plan: {{ tripinfo.plannedDeparture.strftime('%H:%M') }}
+	{% endif %}
 {% endif %}
 </div></div>
 
