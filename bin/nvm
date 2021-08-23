@@ -152,6 +152,114 @@ class TransportAPIs:
         return None
 
 
+class Trip:
+    def __init__(self, obj):
+
+        for key in "departure plannedDeparture arrival plannedArrival".split():
+            try:
+                obj[key] = dateutil.parser.parse(obj[key])
+            except TypeError:
+                obj[key] = None
+
+        self.cancelled = None
+        self.__dict__.update(obj)
+
+        if "," in self.direction:
+            self.direction, self.suffix = self.direction.split(",", maxsplit=1)
+        else:
+            self.suffix = None
+
+        self.stopovers = list(map(Stopover, self.stopovers))
+        self.where = None
+        self.quoted_where = None
+
+        self.platform = None
+        self.plannedPlatform = None
+        self.platform_changed = None
+
+    def set_ref(self, stop_name):
+        self.where = stop_name
+        self.quoted_where = aiohttp.helpers.quote(self.where)
+        ref_pos = -1
+        for stopover in self.stopovers:
+            if stopover.stop["name"] == stop_name:
+                ref_pos = 0
+                self.arrival = stopover.arrival
+                self.arrivalDelay = stopover.arrivalDelay
+                self.plannedArrival = stopover.plannedArrival
+                self.departure = stopover.departure
+                self.departureDelay = stopover.departureDelay
+                self.plannedDeparture = stopover.plannedDeparture
+                self.platform = stopover.platform
+                self.plannedPlatform = stopover.plannedPlatform
+                self.platform_changed = stopover.platform_changed
+            elif ref_pos == 0:
+                ref_pos = 1
+            stopover.set_ref(ref_pos)
+
+    def set_relative(self, now_ts):
+        for stopover in self.stopovers:
+            stopover.set_relative(now_ts)
+
+
+class Stopover:
+    def __init__(self, obj):
+
+        for key in "departure plannedDeparture arrival plannedArrival".split():
+            try:
+                obj[key] = dateutil.parser.parse(obj[key])
+            except TypeError:
+                obj[key] = None
+
+        self.cancelled = None
+        self.__dict__.update(obj)
+
+        if "," in self.stop["name"]:
+            self.name, self.suffix = self.stop["name"].split(",", maxsplit=1)
+        else:
+            self.name = self.stop["name"]
+            self.suffix = None
+
+        if self.arrivalPlatform:
+            self.platform = self.arrivalPlatform
+        elif self.departurePlatform:
+            self.platform = departurePlatform
+        else:
+            self.platform = None
+
+        if self.plannedArrivalPlatform:
+            self.plannedPlatform = self.plannedArrivalPlatform
+        elif self.plannedDeparturePlatform:
+            self.plannedPlatform = self.plannedDeparturePlatform
+        else:
+            self.plannedPlatform = None
+
+        self.platform_changed = self.platform != self.plannedPlatform
+
+        self.is_requested_stop = False
+        self.ref_pos = None
+        self.is_future = None
+
+    def set_ref(self, ref_pos):
+        self.ref_pos = ref_pos
+        if ref_pos <= 0:
+            self.when = self.departure
+            self.plannedWhen = self.plannedDeparture
+            self.delay = self.departureDelay
+        else:
+            self.when = self.arrival
+            self.plannedWhen = self.plannedArrival
+            self.delay = self.arrivalDelay
+        if ref_pos == 0:
+            self.is_requested_stop = True
+
+    def set_relative(self, now_ts):
+        if self.arrival is not None:
+            self.is_future = self.arrival.timestamp() > now_ts
+        elif self.departure is not None:
+            self.is_future = self.departure.timestamp() > now_ts
+
+
 class Departure:
     def __init__(self, obj):
         self.__dict__.update(obj)
@@ -165,8 +273,6 @@ class Departure:
 
         self.stop_name = obj.get("stop", dict()).get("name", None)
         self.station_name = obj.get("station", dict()).get("name", self.stop_name)
-
-        self.quoted_stop_name = aiohttp.helpers.quote(self.stop_name)
 
         try:
             self.location = (
@@ -207,6 +313,14 @@ class Departure:
         if self.delay:
             self.delay = self.delay // 60
             self.delay = f"{self.delay:+.0f}"
+
+        self.quoted_line_name = aiohttp.helpers.quote(self.line.name)
+        self.quoted_stop_name = aiohttp.helpers.quote(self.stop_name)
+
+    def quoted_platform(self):
+        if self.platform:
+            return aiohttp.helpers.quote(self.platform)
+        return ""
 
     def __repr__(self):
         return f"Departure<line {self.line} to {self.direction}, scheduled departure at {self.iso8601}>"
@@ -256,6 +370,8 @@ class Line:
         elif self.product == "bus":
             if self.name.startswith("Bus "):
                 self.name = self.name[4:]
+            elif self.name.startswith("Bus"):
+                self.name = self.name[3:]
             self.css_class = "bus"
 
     def __repr__(self):
@@ -282,6 +398,39 @@ def meta_privacy(request):
     about = env.get_template("privacy.html")
     return web.Response(
         body=about.render(version=nvm_version),
+        headers=headers,
+    )
+
+
+async def show_trip_info(request, trip_id=None):
+    if trip_id is None:
+        trip_id = request.match_info.get("tripid")
+    request_url = f"{db_rest_api}/trips/{trip_id}?lineName=0"
+    logging.debug(f"Requesting trip info from {request_url}")
+    async with aiohttp.ClientSession() as session:
+        async with session.get(request_url) as response:
+            tripinfo = await response.json()
+
+    tripinfo = Trip(tripinfo)
+
+    if request.query.get("highlight", None):
+        tripinfo.set_ref(request.query.get("highlight"))
+
+    if not tripinfo.platform and request.query.get("platform", None):
+        tripinfo.platform = request.query.get("platform")
+
+    now = datetime.now()
+    now_ts = now.timestamp()
+    tripinfo.set_relative(now_ts)
+
+    tripinfo_page = env.get_template("tripinfo_page.html")
+
+    return web.Response(
+        body=tripinfo_page.render(
+            title=tripinfo.line["name"] + " ➔ " + tripinfo.direction,
+            tripinfo=tripinfo,
+            version=nvm_version,
+        ),
         headers=headers,
     )
 
@@ -473,5 +622,6 @@ if __name__ == "__main__":
     app.router.add_get(f"{args.prefix}meta/about", meta_about)
     app.router.add_get(f"{args.prefix}meta/imprint", meta_imprint)
     app.router.add_get(f"{args.prefix}meta/privacy", meta_privacy)
+    app.router.add_get(f"{args.prefix}trip/{{tripid}}", show_trip_info)
     app.router.add_static(f"{args.prefix}static", "static")
     web.run_app(app, host="localhost", port=args.port)

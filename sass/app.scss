@@ -67,6 +67,32 @@ input[type="text"] {
 	box-sizing: border-box;
 }
 
+.smallbutton {
+	display: inline-block;
+	vertical-align: baseline;
+	border-radius: 4px;
+	border: 1px solid #2e6da4;
+	transition: background-color .3s;
+	color: #fff;
+	background-color: #337ab7;
+	cursor: pointer;
+	box-shadow: none;
+	padding: 0.9ex;
+	margin-right: 1em;
+
+	&:active, &:focus, &:hover {
+		color: #fff;
+		background-color: #286090;
+		border-color: #204d74;
+	}
+
+	.material-icons {
+		display: block;
+		float: left;
+		margin-right: 0.5ex;
+	}
+}
+
 .globalnote {
 	margin-top: 1em;
 	font-style: italic;
@@ -328,7 +354,7 @@ ul.departures {
 
 		.delay {
 			padding-right: 1ex;
-			color: #ff0000;
+			color: $delay-color;
 		}
 	}
 
@@ -341,6 +367,67 @@ ul.departures {
 		font-size: 140%;
 		font-weight: bold;
 		color: $fg;
+	}
+}
+
+.tripinfo {
+	padding-left: 1em;
+	padding-right: 1em;
+	.direction {
+		text-align: center;
+		font-size: 120%;
+		padding-top: 0.5em;
+		padding-bottom: 0.5em;
+		border-bottom: 0.1em dashed #cccccc;
+	}
+	.dataline {
+		margin-top: 0.6em;
+		font-size: 120%;
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 1em;
+
+		> div {
+			width: 33%;
+		}
+
+		.arrival {
+			display: inline-block;
+			text-align: right;
+		}
+		.platform {
+			text-align: center;
+		}
+		.departure {
+			text-align: right;
+		}
+
+		.delay {
+			color: $delay-color;
+		}
+	}
+	.linklist {
+		margin-top: 0.5em;
+		margin-bottom: 1em;
+		.material-icons {
+			font-size: 20px;
+		}
+	}
+	.route {
+		margin-top: 1em;
+		.past-stop {
+			list-style-type: disc;
+		}
+		.future-stop {
+			list-style-type: circle;
+		}
+		.this-stop {
+			font-weight: bold;
+		}
+		.cancelled-stop {
+			color: $cancelled-stop-color;
+		}
 	}
 }
 
@@ -398,7 +485,7 @@ ul.departures {
 	font-weight: 400;
 	src: local('Material Icons'),
 		local('MaterialIcons-Regular'),
-		url(/static/v5/font/MaterialIcons-Regular.ttf) format('truetype');
+		url(/static/v6/font/MaterialIcons-Regular.ttf) format('truetype');
 }
 
 .material-icons {

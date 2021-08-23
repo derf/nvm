@@ -19,10 +19,14 @@ $longdistance-bg: #ffcccc;
 $regional-bg: #eeeeee;
 $tram-bg: #ffcccc;
 $taxi-bg: #eeaaee;
-$suburban-bg: #aaffba;
+$suburban-bg: #9fd79f;
 $subway-bg: #aac0ff;
 $bus-bg: #eeaaee;
 
+$cancelled-stop-color: #cc0000;
 $cancelled-bg-color: #ffe7d0;
+
+$delay-color: #ff0000;
+$undelay-color: #006600;
 
 @import 'app.scss';

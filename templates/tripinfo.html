@@ -1,0 +1,72 @@
+<div class="dataline">
+
+<div><div class="arrival">
+{% if tripinfo.arrival %}
+An:
+{% if tripinfo.arrivalDelay %}
+<span class="delay">{{ tripinfo.arrival.strftime('%H:%M') }}</span>
+<br/>Plan: {{ tripinfo.plannedArrival.strftime('%H:%M') }}
+{% else %}
+{{ tripinfo.arrival.strftime('%H:%M') }}
+{% endif %}
+{% endif %}
+</div></div>
+
+<div><div class="platform">
+{% if tripinfo.platform %}
+Steig {{ tripinfo.platform }}
+{% else %}
+&nbsp;
+{% endif %}
+</div></div>
+
+<div><div class="departure">
+{% if tripinfo.arrival %}
+Ab:
+{% if tripinfo.departureDelay %}
+<span class="delay">{{ tripinfo.departure.strftime('%H:%M') }}</span>
+<br/>Plan: {{ tripinfo.plannedDeparture.strftime('%H:%M') }}
+{% else %}
+{{ tripinfo.departure.strftime('%H:%M') }}
+{% endif %}
+{% endif %}
+</div></div>
+
+</div>
+
+<div class="linklist">
+{% if tripinfo.quoted_where %}
+<a class="smallbutton" href="https://dbf.finalrewind.org/map/{{ tripinfo.id }}/0?from={{ tripinfo.quoted_where }}"><i class="material-icons" aria-hidden="true">map</i> Karte</a>
+{% else %}
+<a class="smallbutton" href="https://dbf.finalrewind.org/map/{{ tripinfo.id }}/0"><i class="material-icons" aria-hidden="true">map</i> Karte</a>
+{% endif %}
+<div>
+
+<div class="route">
+Fahrtverlauf:
+<ul>
+{% for stopover in tripinfo.stopovers %}
+	<li class="
+	{% if stopover.is_future %}
+		future-stop
+	{% else %}
+		past-stop
+	{% endif %}
+	{% if stopover.cancelled %}
+		cancelled-stop
+	{% endif %}
+	">
+	{% if stopover.when %}
+		{{ stopover.when.strftime('%H:%M') }}
+	{% elif stopover.plannedWhen %}
+		{{ stopover.plannedWhen.strftime('%H:%M') }}
+	{% endif %}
+	{% if stopover.is_requested_stop %}
+		<span class="this-stop">{{ stopover.name }}</span>
+	{% else %}
+		{{ stopover.name }}
+	{% endif %}
+	</li>
+{% endfor %}
+</ul>
+</div>

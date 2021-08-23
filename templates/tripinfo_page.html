@@ -3,7 +3,7 @@
 <head>
 	<title>{{ title }}</title>
 	{% include 'header.html' %}
-	<script src="/static/v6/js/reload.js"></script>
+	<!--<script src="/static/v6/js/reload.js"></script>-->
 </head>
 <body>
 
@@ -20,12 +20,9 @@
 				</div>
 			</div>
 		{% endif %}
-		{% if not departures %}
-			<div class="globalnote">Keine Abfahrten innerhalb der nächsten zwei Stunden</div>
-		{% endif %}
-		<ul class="departures" id="departurelist">
-			{% include 'departure_list.html' %}
-		</ul>
+		<div class="tripinfo" id="tripinfo">
+			{% include 'tripinfo.html' %}
+		</div>
 	</div>
 </div>
 
