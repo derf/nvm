@@ -9,7 +9,6 @@
 			</span>
 			{% if departure.cancelled and departure.plannedWhen %}
 				<span class="time" aria-label="fällt aus, planmäßige Abfahrt um {{ departure.plannedWhen }}">
-					<span class="delay">fällt aus</span>
 					{{ departure.plannedWhen.strftime("%H:%M") }}
 				</span>
 			{% else %}
@@ -20,8 +19,10 @@
 					{{ departure.relativeWhen }}
 				</span>
 			{% endif %}
-			{% if departure.platform %}
-				<span class="platform" aria-label="Gleis/Bussteig {{ departure.platform }}">{{ departure.platform }}</span>
+			{% if departure.cancelled %}
+				<span class="cancelled" aria-hidden="true">entfällt</span>
+			{% elif departure.platform %}
+				<span class="platform" aria-label="Steig {{ departure.platform }}">{{ departure.platform }}</span>
 			{% endif %}
 		</a>
 	</li>

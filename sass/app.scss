@@ -368,6 +368,16 @@ ul.departures {
 		font-weight: bold;
 		color: $fg;
 	}
+
+	span.cancelled {
+		position: absolute;
+		bottom: 5px;
+		right: 5px;
+		overflow: hidden;
+		background-color: transparent;
+		font-size: 100%;
+		color: $delay-color;
+	}
 }
 
 .tripinfo {
