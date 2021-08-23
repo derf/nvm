@@ -223,7 +223,7 @@ class Stopover:
         if self.arrivalPlatform:
             self.platform = self.arrivalPlatform
         elif self.departurePlatform:
-            self.platform = departurePlatform
+            self.platform = self.departurePlatform
         else:
             self.platform = None
 
