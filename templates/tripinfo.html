@@ -14,8 +14,7 @@
 		<span class="delay">An: ––:––</span>
 		<br/>Plan: {{ tripinfo.plannedArrival.strftime('%H:%M') }}
 	{% else %}
-		An: ??:??
-		<br/>Plan: {{ tripinfo.plannedArrival.strftime('%H:%M') }}
+		An: <i class="material-icons">gps_off</i> {{ tripinfo.plannedArrival.strftime('%H:%M') }}
 	{% endif %}
 {% endif %}
 </div></div>
@@ -44,8 +43,7 @@
 		<span class="delay">Ab: ––:––</span>
 		<br/>Plan: {{ tripinfo.plannedDeparture.strftime('%H:%M') }}
 	{% else %}
-		Ab: ??:??
-		<br/>Plan: {{ tripinfo.plannedDeparture.strftime('%H:%M') }}
+		Ab: <i class="material-icons">gps_off</i> {{ tripinfo.plannedDeparture.strftime('%H:%M') }}
 	{% endif %}
 {% endif %}
 </div></div>
