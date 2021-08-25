@@ -378,6 +378,14 @@ ul.departures {
 		font-size: 100%;
 		color: $delay-color;
 	}
+
+	.no-realtime {
+		background-color: transparent;
+		padding-right: 1ex;
+		i.material-icons {
+			font-size: 12px;
+		}
+	}
 }
 
 .tripinfo {
