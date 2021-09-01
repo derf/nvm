@@ -164,7 +164,7 @@ class Trip:
         self.cancelled = None
         self.__dict__.update(obj)
 
-        if "," in self.direction:
+        if self.direction is not None and "," in self.direction:
             self.direction, self.suffix = self.direction.split(",", maxsplit=1)
         else:
             self.suffix = None
@@ -425,9 +425,14 @@ async def show_trip_info(request, trip_id=None):
 
     tripinfo_page = env.get_template("tripinfo_page.html")
 
+    if tripinfo.direction:
+        page_title = tripinfo.line["name"] + " ➔ " + tripinfo.direction
+    else:
+        page_title = tripinfo.line["name"]
+
     return web.Response(
         body=tripinfo_page.render(
-            title=tripinfo.line["name"] + " ➔ " + tripinfo.direction,
+            title=page_title,
             tripinfo=tripinfo,
             version=nvm_version,
         ),
