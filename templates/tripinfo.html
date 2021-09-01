@@ -58,6 +58,16 @@
 {% endif %}
 <div>
 
+<div class="remarks">
+<ul>
+{% for remark in tripinfo.remarks %}
+{% if remark["type"] == "status" and remark["code"] is none %}
+<li>{{ remark["summary"] }} – {{ remark["text"] }}</li>
+{% endif %}
+{% endfor %}
+</ul>
+</div>
+
 <div class="route">
 Fahrtverlauf:
 <ul>
