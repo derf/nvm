@@ -2,10 +2,10 @@
 	<li class="{{ departure.classes }}" data-timestamp="{{ departure.sort_by }}">
 		<a href="/trip/{{ departure.tripId }}?line={{ departure.quoted_line_name }}&amp;highlight={{ departure.quoted_stop_name }}&amp;platform={{ departure.quoted_platform() }}">
 			<span class="line {{ departure.line.css_class }}">{{ departure.line.name }}</span>
-			{% if departure.suffix %}
-				<span class="destsuffix">{{ departure.suffix }}</span>
+			{% if departure.direction_area %}
+				<span class="destsuffix">{{ departure.direction_area }}</span>
 			{% endif %}
-			<span class="dest" aria-label="nach {{ departure.direction }}">{{ departure.direction }}
+			<span class="dest" aria-label="nach {{ departure.direction_stop }}">{{ departure.direction_stop }}
 			</span>
 			{% if departure.cancelled and departure.plannedWhen %}
 				<span class="time" aria-label="fällt aus, planmäßige Abfahrt um {{ departure.plannedWhen }}">

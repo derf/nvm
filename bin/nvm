@@ -164,12 +164,17 @@ class Trip:
         self.cancelled = None
         self.__dict__.update(obj)
 
+        self.direction_area = None
+        self.direction_stop = None
+
         if self.direction is not None and "," in self.direction:
-            self.direction, self.suffix = self.direction.split(",", maxsplit=1)
+            self.direction = tuple(self.direction.split(",", maxsplit=1))
         else:
-            self.suffix = None
+            self.direction = self.direction, None
 
         self.stopovers = list(map(Stopover, self.stopovers))
+        Stopover.resolve_names(self.stopovers)
+
         self.where = None
         self.quoted_where = None
 
@@ -214,11 +219,13 @@ class Stopover:
         self.cancelled = None
         self.__dict__.update(obj)
 
+        self.name_area = None
+        self.name_stop = None
+
         if "," in self.stop["name"]:
-            self.name, self.suffix = self.stop["name"].split(",", maxsplit=1)
+            self.name = tuple(self.stop["name"].split(",", maxsplit=1))
         else:
-            self.name = self.stop["name"]
-            self.suffix = None
+            self.name = self.stop["name"], None
 
         if self.arrivalPlatform:
             self.platform = self.arrivalPlatform
@@ -259,6 +266,28 @@ class Stopover:
         elif self.departure is not None:
             self.is_future = self.departure.timestamp() > now_ts
 
+    @staticmethod
+    def resolve_names(stopovers):
+        prefixes = set()
+        suffixes = set()
+        for stopover in stopovers:
+            if stopover.name[1] is not None:
+                prefixes.add(stopover.name[0])
+                suffixes.add(stopover.name[1])
+
+        if len(prefixes) > len(suffixes):
+            area_index, stop_index = 1, 0
+        else:
+            area_index, stop_index = 0, 1
+
+        for stopover in stopovers:
+            if stopover.name[1] is None:
+                stopover.name_area = None
+                stopover.name_stop = stopover.name[0]
+            else:
+                stopover.name_area = stopover.name[area_index]
+                stopover.name_stop = stopover.name[stop_index]
+
 
 class Departure:
     def __init__(self, obj):
@@ -282,10 +311,13 @@ class Departure:
         except KeyError:
             self.location = None
 
-        if "," in self.direction:
-            self.direction, self.suffix = self.direction.split(",", maxsplit=1)
+        self.direction_area = None
+        self.direction_stop = None
+
+        if self.direction is not None and "," in self.direction:
+            self.direction = tuple(self.direction.split(",", maxsplit=1))
         else:
-            self.suffix = None
+            self.direction = self.direction, None
 
         if "line" in obj:
             self.line = Line(self.line)
@@ -349,6 +381,28 @@ class Departure:
     def _add_efa(self, efa_departure):
         if efa_departure.platform and not self.platform:
             self.platform = efa_departure.platform
+
+    @staticmethod
+    def resolve_directions(departures):
+        prefixes = set()
+        suffixes = set()
+        for departure in departures:
+            if departure.direction[1] is not None:
+                prefixes.add(departure.direction[0])
+                suffixes.add(departure.direction[1])
+
+        if len(prefixes) > len(suffixes):
+            area_index, stop_index = 1, 0
+        else:
+            area_index, stop_index = 0, 1
+
+        for departure in departures:
+            if departure.direction[1] is None:
+                departure.direction_area = None
+                departure.direction_stop = departure.direction[0]
+            else:
+                departure.direction_area = departure.direction[area_index]
+                departure.direction_stop = departure.direction[stop_index]
 
 
 class Line:
@@ -425,8 +479,10 @@ async def show_trip_info(request, trip_id=None):
 
     tripinfo_page = env.get_template("tripinfo_page.html")
 
-    if tripinfo.direction:
-        page_title = tripinfo.line["name"] + " ➔ " + tripinfo.direction
+    if tripinfo.direction and tripinfo.direction[0] and tripinfo.direction[1]:
+        page_title = tripinfo.line["name"] + " ➔ " + ", ".join(tripinfo.direction)
+    elif tripinfo.direction and tripinfo.direction[0]:
+        page_title = tripinfo.line["name"] + " ➔ " + tripinfo.direction[0]
     else:
         page_title = tripinfo.line["name"]
 
@@ -448,9 +504,7 @@ async def show_departure_board(request, eva=None):
         except ValueError:
             return web.HTTPBadRequest(text="EVA must be a number at the moment")
 
-    request_url = (
-        f"{db_rest_api}/stops/{eva}/departures?results=60&duration=120&stopovers=true"
-    )
+    request_url = f"{db_rest_api}/stops/{eva}/departures?results=60&duration=120&stopovers=true&language=de"
     logging.debug(f"Requesting '{eva}' departures from {request_url}")
     async with aiohttp.ClientSession() as session:
         async with session.get(request_url) as response:
@@ -463,6 +517,8 @@ async def show_departure_board(request, eva=None):
     now_ts = now.timestamp()
 
     departures = list(map(Departure, departures))
+
+    Departure.resolve_directions(departures)
 
     station_name_freq = dict()
     for departure in departures:

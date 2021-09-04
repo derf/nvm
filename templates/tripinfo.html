@@ -88,9 +88,9 @@ Fahrtverlauf:
 		{{ stopover.plannedWhen.strftime('%H:%M') }}
 	{% endif %}
 	{% if stopover.is_requested_stop %}
-		<span class="this-stop">{{ stopover.name }}</span>
+		<span class="this-stop">{% if stopover.name_area %}{{ stopover.name_area }}{% endif %} {{ stopover.name_stop }} </span>
 	{% else %}
-		{{ stopover.name }}
+		{% if stopover.name_area %}{{ stopover.name_area }}{% endif %} {{ stopover.name_stop }}
 	{% endif %}
 	</li>
 {% endfor %}
