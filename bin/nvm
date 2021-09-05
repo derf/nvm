@@ -275,7 +275,7 @@ class Stopover:
                 prefixes.add(stopover.name[0])
                 suffixes.add(stopover.name[1])
 
-        if len(prefixes) > len(suffixes):
+        if len(prefixes) >= len(suffixes):
             area_index, stop_index = 1, 0
         else:
             area_index, stop_index = 0, 1
@@ -391,7 +391,7 @@ class Departure:
                 prefixes.add(departure.direction[0])
                 suffixes.add(departure.direction[1])
 
-        if len(prefixes) > len(suffixes):
+        if len(prefixes) >= len(suffixes):
             area_index, stop_index = 1, 0
         else:
             area_index, stop_index = 0, 1
