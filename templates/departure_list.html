@@ -1,5 +1,9 @@
 {% for departure in departures %}
-	<li class="{{ departure.classes }}" data-timestamp="{{ departure.sort_by }}">
+	{% if departure.line.productName and departure.line.fahrtNr %}
+		<li class="{{ departure.classes }}" data-timestamp="{{ departure.sort_by }}" id="{{departure.line.productName}}{{departure.line.fahrtNr}}">
+	{% else %}
+		<li class="{{ departure.classes }}" data-timestamp="{{ departure.sort_by }}">
+	{% endif %}
 		<a href="/trip/{{ departure.tripId }}?line={{ departure.quoted_line_name }}&amp;highlight={{ departure.quoted_stop_name }}&amp;platform={{ departure.quoted_platform() }}">
 			<span class="line {{ departure.line.css_class }}">{{ departure.line.name }}</span>
 			{% if departure.direction_area %}

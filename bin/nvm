@@ -428,6 +428,12 @@ class Line:
                 self.name = self.name[3:]
             self.css_class = "bus"
 
+        self.productName = obj.get("productName", 0)
+        if "fahrtNr" in obj:
+            self.fahrtNr = int(self.fahrtNr)
+        else:
+            self.fahrtNr = None
+
     def __repr__(self):
         return self.name
 
