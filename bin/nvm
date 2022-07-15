@@ -430,7 +430,8 @@ class Line:
                 self.name = self.name[3:]
             self.css_class = "bus"
 
-        self.productName = obj.get("productName", 0)
+        if not "productName" in obj and " " in self.name:
+            self.productName = self.name.split(" ")[0]
         if "fahrtNr" in obj:
             self.fahrtNr = int(self.fahrtNr)
         else:
