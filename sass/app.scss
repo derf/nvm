@@ -169,6 +169,11 @@ ul.stops {
 		border-bottom: 1px solid grey;
 		background-color: $bg;
 
+		> .anchor {
+			position: relative;
+			top: -12em;
+		}
+
 		a {
 			color: $fg;
 			text-decoration: none;
