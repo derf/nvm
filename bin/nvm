@@ -158,7 +158,7 @@ class Trip:
         for key in "departure plannedDeparture arrival plannedArrival".split():
             try:
                 obj[key] = dateutil.parser.parse(obj[key])
-            except TypeError:
+            except (KeyError, TypeError):
                 obj[key] = None
 
         self.cancelled = None
