@@ -166,6 +166,7 @@ ul.stops {
 	padding:0;
 
 	> li {
+		position: relative;
 		border-bottom: 1px solid grey;
 		background-color: $bg;
 
