@@ -162,6 +162,7 @@ class Trip:
                 obj[key] = None
 
         self.cancelled = None
+        self.direction = None
         self.__dict__.update(obj)
 
         self.direction_area = None
@@ -291,6 +292,7 @@ class Stopover:
 
 class Departure:
     def __init__(self, obj):
+        self.direction = None
         self.__dict__.update(obj)
 
         if not "cancelled" in obj:
