@@ -487,7 +487,7 @@ async def show_trip_info(request, trip_id=None):
                 version=nvm_version,
             ),
             headers=headers,
-            status=500,
+            status=502,
         )
 
     tripinfo = Trip(tripinfo)
@@ -621,7 +621,7 @@ async def redirect_to_departure_board(request):
                         version=nvm_version,
                     ),
                     headers=headers,
-                    status=500,
+                    status=502,
                 )
             stops = await response.json()
 
@@ -666,7 +666,7 @@ async def ajax_geolocation(request):
                         }
                     ),
                     headers=ajax_headers,
-                    status=500,
+                    status=502,
                 )
             departures = await response.json()
     return web.Response(
