@@ -474,6 +474,22 @@ async def show_trip_info(request, trip_id=None):
         async with session.get(request_url) as response:
             tripinfo = await response.json()
 
+    if tripinfo.get("error", False):
+        landing_page = env.get_template("landing_page.html")
+        return web.Response(
+            body=landing_page.render(
+                title="NVM",
+                error={
+                    "lead": "Abfrage der Fahrt fehlgeschlagen",
+                    "body": tripinfo.get("msg", ""),
+                    "code": tripinfo.get("responseId", ""),
+                },
+                version=nvm_version,
+            ),
+            headers=headers,
+            status=500,
+        )
+
     tripinfo = Trip(tripinfo)
 
     if request.query.get("highlight", None):
