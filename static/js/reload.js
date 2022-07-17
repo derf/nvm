@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	};
 
 	const fetchDepartures = () => {
-		var fetchUrl = window.location.href;
+		var fetchUrl = window.location.href.split('#')[0];
 		if (fetchUrl.includes("?")) {
 			fetchUrl += "&ajax=1";
 		} else {
